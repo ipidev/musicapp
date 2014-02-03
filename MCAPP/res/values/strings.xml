@@ -1,8 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
+    <!-- Fullscreen activity. -->
     <string name="app_name">MCAPP</string>
     <string name="dummy_button">Dummy Button</string>
     <string name="dummy_content">DUMMY\nCONTENT</string>
-
+    <string name="action_settings">Settings</string>
+    
+    <!-- Sound test activity. -->
+    <string name="title_activity_main">MCAPP Sound Test</string>
+    <string name="hello_world">Play me some sounds, yo.</string>
+    <string name="keyC">C</string>
+    <string name="keyD">D</string>
+	<string name="keyE">E</string>
+	<string name="keyF">F</string>
+	<string name="keyG">G</string>
+	<string name="keyA">A</string>
+	<string name="checkBox_useRecording">Use recorded sound.</string>
+	<string name="button_startRecording">Record</string>
+	<string name="button_stopRecording">Stop</string>
 </resources>
