@@ -1,6 +1,4 @@
-package song;
-
-import score.*;
+package mcapp;
 
 //Class dedicated to the creation and general storage of a 'song'
 public class Song 

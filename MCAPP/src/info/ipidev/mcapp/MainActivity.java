@@ -61,6 +61,12 @@ public class MainActivity extends Activity {
 		case R.id.keyA:
 			_soundPlayer.play(_pianoID, 9);
 			break;
+		case R.id.keyB:
+			_soundPlayer.play(_pianoID, 11);
+			break;
+		case R.id.keyCup:
+			_soundPlayer.play(_pianoID, 12);
+			break;
 		default:
 			throw new RuntimeException("Unknown button ID.");
 		}

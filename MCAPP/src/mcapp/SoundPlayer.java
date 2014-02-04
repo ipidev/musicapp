@@ -13,6 +13,9 @@ import android.media.SoundPool.OnLoadCompleteListener;
  * Class that is responsible for loading and maintaining sounds and playing
  * them at various pitches. This class is implemented for use in an Android
  * activity - please create one upon instantiation of the activity.
+ *
+ * @author Sean
+ *
  */
 public class SoundPlayer
 {

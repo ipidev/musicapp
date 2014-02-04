@@ -1,12 +1,9 @@
-package score;
-
-//Import Objects etc. Notes, Beats, Bars
-import score.Objects.*;
+package mcapp;
 
 //Class is responsible for the creation and storing of the musical layout.
 public class Score 
 {
-	Note[][] _score;
+	/*Note[][] _score;
 	
 	//Default Constructor
 	public Score ()
@@ -61,5 +58,5 @@ public class Score
 		{
 			//Note not occupying current space. Error Logic
 		}
-	}
+	}*/
 }

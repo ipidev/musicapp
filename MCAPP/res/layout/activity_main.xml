@@ -25,49 +25,73 @@
             android:id="@+id/keyC"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:minWidth="48dp"
-            android:text="@string/keyC"
-            android:onClick="onKeyPress" />
+            android:minHeight="64dp"
+            android:minWidth="64dp"
+            android:onClick="onKeyPress"
+            android:text="@string/keyC" />
 
         <Button
             android:id="@+id/keyD"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:minWidth="48dp"
-            android:text="@string/keyD"
-            android:onClick="onKeyPress" />
+            android:minHeight="64dp"
+            android:minWidth="64dp"
+            android:onClick="onKeyPress"
+            android:text="@string/keyD" />
 
         <Button
             android:id="@+id/keyE"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:minWidth="48dp"
-            android:text="@string/keyE"
-            android:onClick="onKeyPress" />
+            android:minHeight="64dp"
+            android:minWidth="64dp"
+            android:onClick="onKeyPress"
+            android:text="@string/keyE" />
 
         <Button
             android:id="@+id/keyF"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:minWidth="48dp"
-            android:text="@string/keyF"
-            android:onClick="onKeyPress" />
+            android:minHeight="64dp"
+            android:minWidth="64dp"
+            android:onClick="onKeyPress"
+            android:text="@string/keyF" />
 
         <Button
             android:id="@+id/keyG"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:minWidth="48dp"
-            android:text="@string/keyG"
-            android:onClick="onKeyPress" />
+            android:minHeight="64dp"
+            android:minWidth="64dp"
+            android:onClick="onKeyPress"
+            android:text="@string/keyG" />
 
         <Button
             android:id="@+id/keyA"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:minWidth="48dp"
-            android:text="@string/keyA"
-            android:onClick="onKeyPress" />
+            android:minHeight="64dp"
+            android:minWidth="64dp"
+            android:onClick="onKeyPress"
+            android:text="@string/keyA" />
+        
+        <Button
+            android:id="@+id/keyB"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minHeight="64dp"
+            android:minWidth="64dp"
+            android:onClick="onKeyPress"
+            android:text="@string/keyB" />
+
+        <Button
+            android:id="@+id/keyCup"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minHeight="64dp"
+            android:minWidth="64dp"
+            android:onClick="onKeyPress"
+            android:text="@string/keyCup" />
 
     </LinearLayout>
 
@@ -97,5 +121,7 @@
         android:layout_alignBottom="@+id/button1"
         android:layout_alignLeft="@+id/testText"
         android:text="@string/checkBox_useRecording" />
+
+    
 
 </RelativeLayout>

@@ -1,9 +1,9 @@
-package score.Objects;
+package mcapp;
 
 //Class dedicated to storing three instances of Note. 
 public class Beat 
 {
-	Note _note;
+	/*Note _note;
 	Note[] _beat;
 	
 	//Constructor
@@ -47,5 +47,5 @@ public class Beat
 		{
 			//Error Logic
 		}
-	}
+	}*/
 }
