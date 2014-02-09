@@ -34,10 +34,6 @@ public class SoundPlayer
 	 */
 	private boolean _isReady = false;
 	
-	/**
-	 * Maximum number of sounds that can be played by the SoundPool at once.
-	 */
-	private static final int MAX_STREAMS = 3;
 	
 	/**
 	 * Conversion table from notes to playback rate. This table assumes that
@@ -70,7 +66,8 @@ public class SoundPlayer
 		_activity.setVolumeControlStream(AudioManager.STREAM_MUSIC);
 		
 		//Create the SoundPool.
-		_soundPool = new SoundPool(MAX_STREAMS, AudioManager.STREAM_MUSIC, 0);
+		_soundPool = new SoundPool(Global.MAX_POLYPHONY,
+								   AudioManager.STREAM_MUSIC, 0);
 		
 		//Callback function for when the SoundPool is created.
 		_soundPool.setOnLoadCompleteListener(new OnLoadCompleteListener()

@@ -1,62 +1,73 @@
 package mcapp;
 
-//Class is responsible for the creation and storing of the musical layout.
+/**
+ * Responsible for the creation and storing of the musical layout.
+ * 
+ * @author Josh, Sean
+ *
+ */
 public class Score 
 {
-	/*Note[][] _score;
-	
-	//Default Constructor
-	public Score ()
+	Beat[] _beats;
+
+	/**
+	 * Default Constructor
+	 */
+	public Score()
 	{
-		SetScore();
+		_beats = new Beat[Global.BEATS_PER_SCORE];
+	}
+
+	/**
+	 * Constructor for loaded file
+	 * @param score Collection of beats used for this score. 
+	 * */
+	public Score(Beat[] beats)
+	{
+		_beats = new Beat[Global.BEATS_PER_SCORE];
+	}
+
+	/**
+	 * Accessor for a Beat.
+	 * @param position The target position in the Score.
+	 * @return The Beat object, or null if the position is empty.
+	 */
+	public Beat getBeat(int position)
+	{
+		return _beats[position];
 	}
 	
-	//Constructor for Loaded File
-	public Score (Note[][] score)
+	/**
+	 * Adds a Note to the Score.
+	 * @param position Position in the Score.
+	 * @param instrumentID Instrument ID of new Note.
+	 * @param pitch Pitch of new Note.
+	 * @return True if the operation was successful, false if the position
+	 * was occupied by the same note.
+	 */
+	public boolean addNote(int position, int instrumentID, int pitch)
 	{
-		SetScore(score);
+		//Adds a new Beat object if the current position is empty.
+		if(_beats[position] == null)
+			_beats[position] = new Beat();
+		
+		return _beats[position].addNote(instrumentID, pitch);
 	}
-	
-	//Setter for Score instance. New Score
-	public void SetScore()
+
+	/**
+	 * Removes a Sample or Beat from the Score array.
+	 * @param position Position in the Score.
+	 * @param pitch Pitch used for determining which Note to delete.
+	 * @param deleteAll Check if Beat or Sample is to be deleted
+	 * @return True if the operation was successful, false if there was no
+	 * note at the given position.
+	 */
+	public boolean removeNote(int position, int pitch)
 	{
-		_score = new Note[12][3];
+		if(_beats[position] != null)
+			return _beats[position].removeNote(pitch);
+
+		//The position was empty.
+		return false;
 	}
-	
-	//Setter for Score instance. Loaded Score
-	public void SetScore(Note[][] score)
-	{
-		_score = score;
-	}
-	
-	public Note[][] GetScore()
-	{
-		return _score;
-	}
-	
-	//Adds to score based on Grid layout.
-	public void AddToScore(int x, int y, Note note)
-	{
-		if(_score[x][y] == null)
-		{
-			_score[x][y] = note;
-		}
-		else
-		{
-			//Note Occupying current space. Error Logic
-		}
-	}
-	
-	//Remove Note from current score
-	public void RemoveFromScore(int x, int y)
-	{
-		if(_score[x][y] != null)
-		{
-			_score[x][y] = null;
-		}
-		else
-		{
-			//Note not occupying current space. Error Logic
-		}
-	}*/
 }

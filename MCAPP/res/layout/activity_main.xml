@@ -8,120 +8,59 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".MainActivity" >
 
-    <TextView
-        android:id="@+id/textView1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/hello_world" />
-
-    <LinearLayout
-        android:id="@+id/linearLayout1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/textView1"
-        android:layout_below="@+id/textView1" >
-
-        <Button
-            android:id="@+id/keyC"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:minHeight="64dp"
-            android:minWidth="64dp"
-            android:onClick="onKeyPress"
-            android:text="@string/keyC" />
-
-        <Button
-            android:id="@+id/keyD"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:minHeight="64dp"
-            android:minWidth="64dp"
-            android:onClick="onKeyPress"
-            android:text="@string/keyD" />
-
-        <Button
-            android:id="@+id/keyE"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:minHeight="64dp"
-            android:minWidth="64dp"
-            android:onClick="onKeyPress"
-            android:text="@string/keyE" />
-
-        <Button
-            android:id="@+id/keyF"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:minHeight="64dp"
-            android:minWidth="64dp"
-            android:onClick="onKeyPress"
-            android:text="@string/keyF" />
-
-        <Button
-            android:id="@+id/keyG"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:minHeight="64dp"
-            android:minWidth="64dp"
-            android:onClick="onKeyPress"
-            android:text="@string/keyG" />
-
-        <Button
-            android:id="@+id/keyA"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:minHeight="64dp"
-            android:minWidth="64dp"
-            android:onClick="onKeyPress"
-            android:text="@string/keyA" />
-        
-        <Button
-            android:id="@+id/keyB"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:minHeight="64dp"
-            android:minWidth="64dp"
-            android:onClick="onKeyPress"
-            android:text="@string/keyB" />
-
-        <Button
-            android:id="@+id/keyCup"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:minHeight="64dp"
-            android:minWidth="64dp"
-            android:onClick="onKeyPress"
-            android:text="@string/keyCup" />
-
-    </LinearLayout>
-
-    <TextView
-        android:id="@+id/testText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/linearLayout1"
-        android:layout_below="@+id/linearLayout1"
-        android:layout_marginTop="18dp"
-        android:text="@string/hello_world"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
-
     <Button
-        android:id="@+id/button1"
+        android:id="@+id/recordButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
+        android:layout_alignParentRight="true"
         android:text="@string/button_startRecording" />
+
+    <Button
+        android:id="@+id/playButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/checkBox1"
+        android:layout_alignParentLeft="true"
+        android:text="@string/button_play" />
 
     <CheckBox
         android:id="@+id/checkBox1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/button1"
-        android:layout_alignBottom="@+id/button1"
-        android:layout_alignLeft="@+id/testText"
+        android:layout_alignBaseline="@+id/recordButton"
+        android:layout_alignBottom="@+id/recordButton"
+        android:layout_marginRight="11dp"
+        android:layout_toLeftOf="@+id/recordButton"
         android:text="@string/checkBox_useRecording" />
 
-    
+    <LinearLayout
+        android:id="@+id/linearLayout1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/checkBox1"
+        android:layout_toRightOf="@+id/stopButton" 
+        android:orientation="horizontal"
+        >
+        
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/stopButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/playButton"
+        android:layout_alignBottom="@+id/playButton"
+        android:layout_toRightOf="@+id/playButton"
+        android:text="@string/button_stop" />
+
+    <SeekBar
+        android:id="@+id/bpmBar"
+        android:layout_width="147dp"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/checkBox1"
+        android:layout_toLeftOf="@+id/checkBox1"
+        android:layout_toRightOf="@+id/stopButton"
+        android:max="250" />
 
 </RelativeLayout>

@@ -10,6 +10,11 @@ package mcapp;
 public class Player 
 {
 	/**
+	 * Holds the song data.
+	 */
+	private Song _song = null;
+	
+	/**
 	 * Plays sounds for the app.
 	 */
 	private SoundPlayer _soundPlayer = null;
@@ -24,7 +29,7 @@ public class Player
 	/**
 	 * Holds the index of the current beat (the most recent beat played).
 	 */
-	private int _currentBeat = 0;
+	private int _currentBeat = -1;
 	
 	/**
 	 * The number seconds it takes for one beat to pass.
@@ -46,10 +51,10 @@ public class Player
 	 * Constructs an editor object.
 	 * @param soundPlayer The object that is responsible for outputting sound.
 	 */
-	public Player(SoundPlayer soundPlayer)
+	public Player(Song song, SoundPlayer soundPlayer)
 	{
+		_song = song;
 		_soundPlayer = soundPlayer;
-		//Also needs a song reference in the future.
 	}
 	
 	
@@ -75,7 +80,7 @@ public class Player
 	public void stop()
 	{
 		_isPlaying = false;
-		_currentBeat = 0;
+		_currentBeat = -1;
 		_nextBeatCount = 0.0f;
 	}
 	
@@ -125,8 +130,16 @@ public class Player
 			if (_nextBeatCount >= _secondsPerBeat)
 			{
 				_currentBeat++;
-				//Play notes from song.
 				_nextBeatCount -= _secondsPerBeat;
+				
+				//Play notes from song.
+				Beat beat = _song.getScore(_currentScore).getBeat(_currentBeat);
+				
+				for (int i = 0; i < Global.MAX_POLYPHONY; ++i)
+				{
+					if (!beat.isEmpty(i))
+						_soundPlayer.play(1, beat.getNote(i).getPitch());
+				}
 			}
 		}
 	}

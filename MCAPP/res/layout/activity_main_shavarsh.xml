@@ -1,0 +1,38 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:paddingLeft="16dp"
+    android:paddingRight="16dp" >
+
+    <com.example.myfirstapp.showImage
+        android:id="@+id/my_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" /> 
+	
+    <Button
+	    android:id="@+id/button_play"
+	    android:layout_marginTop="230dp"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:text="@string/button_play"
+	    android:onClick="playButton" />
+    
+    <Button
+	    android:id="@+id/button_stop"
+	    android:layout_marginTop="230dp"
+	    android:layout_marginLeft="60dp"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:text="@string/button_stop"
+	    android:onClick="stopButton" />
+    
+    <SeekBar
+        android:id="@+id/slider"
+        android:layout_marginTop="235dp"
+        android:layout_marginLeft="30dp"
+        android:layout_width="150dp"
+        android:layout_height="30dp"
+        android:progress="50"
+        android:layout_toRightOf="@id/button_stop" />
+	
+</RelativeLayout>

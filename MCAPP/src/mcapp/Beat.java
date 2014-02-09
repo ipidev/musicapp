@@ -1,51 +1,129 @@
 package mcapp;
 
-//Class dedicated to storing three instances of Note. 
+/**
+ * Class dedicated to storing and maintaining a collection of notes. Several
+ * of these appear for each instance of Score.
+ * @author Josh, Sean
+ * 
+ */
 public class Beat 
 {
-	/*Note _note;
-	Note[] _beat;
-	
-	//Constructor
+	/**
+	 * The note data.
+	 */
+	Note _notes[];
+
+	/**
+	 * Initialises LinkedList
+	 */
 	public Beat()
 	{
-		_beat = new Note [3];
+		_notes = new Note[Global.MAX_POLYPHONY];
+	}
+
+	/**
+	 * Accessor for the notes.
+	 * @return A linked list of notes.
+	 */
+	public Note[] getNotes()
+	{
+		return _notes;
 	}
 	
-	
-	//Getter for Beat instance
-	public Note[] GetBeat()
+	/**
+	 * Accessor for one note.
+	 * @param channel The target channel.
+	 * @return The note in this channel, or null if there is none.
+	 */
+	public Note getNote(int channel)
 	{
-		return _beat;
+		return _notes[channel];
 	}
-	
-	//Adds Note object to Beat Array
-	public void AddNote(Note note)
+
+	/**
+	 * Returns whether or not the entire Beat is empty.
+	 * @return True if the Beat has no Notes.
+	 */
+	public boolean isEmpty()
 	{
-		//Loop to add Note object
-		for(int i =0 ; i < 3; i++)
+		for (int i = 0; i < Global.MAX_POLYPHONY; ++i)
 		{
-			if (_beat[i] == null)
+			if (_notes[i] != null)
+				return false;
+		}
+		
+		return true;
+	}
+	
+	/**
+	 * Returns whether or not a specific channel in the beat.
+	 * @return True if the channel has no Notes.
+	 */
+	public boolean isEmpty(int channel)
+	{
+		return (_notes[channel] == null);
+	}
+	
+
+	/**
+	 * Adds a Note to the next available channel in this Beat.
+	 * @param instrumentID The new note's instrument.
+	 * @param pitch The new note's pitch.
+	 * @return True if the operation was successful, false if the Beat is full.
+	 */
+	public boolean addNote(int instrumentID, int pitch)
+	{
+		for (int i = 0; i < Global.MAX_POLYPHONY; ++i)
+		{
+			if (!isEmpty(i))
 			{
-				_beat[i] = note;
-			}
-			else if (_beat[i] != null && i == 2)
-			{
-				//Beat is full. Error Logic
+				//If the channel is empty, check the other notes to see that
+				//none of them have the same pitch and instrument as the new one
+				for (int j = 0; j < Global.MAX_POLYPHONY; ++j)
+				{
+					if (i == j)
+						continue;
+					
+					if (!isEmpty(j) &&
+						_notes[j].getInstrument() == instrumentID &&
+						_notes[j].getPitch() == pitch)
+					{
+						//Non-unique note.
+						return false;	
+					}
+				}
+				
+				//This is a unique note - add it.
+				_notes[i] = new Note(instrumentID, pitch);
+				return true;
 			}
 		}
+		
+		//Beat is full.
+		return false;
 	}
-	
-	//Removes Note from Beat. Sets position as NULL
-	public void RemoveNote(int position)
+
+
+	/**
+	 * Removes Note from Beat.
+	 * @param pitch Pitch used for determining which Note to delete.
+	 * @return True if the note was deleted, false if there was no note at this
+	 * pitch.
+	 */
+	public boolean removeNote(int pitch)
 	{
-		if(position < 3 && position > -1)
+		//Reverse order because the later-added notes have their images above
+		//previously added ones.
+		for (int i = Global.MAX_POLYPHONY; i > 0; --i)
 		{
-			_beat[position] = null;
+			if (!isEmpty(i) && _notes[i].getPitch() == pitch)
+			{
+				_notes[i] = null;
+				return true;
+			}
 		}
-		else
-		{
-			//Error Logic
-		}
-	}*/
+		
+		//No note at this pitch.
+		return false;
+	}
 }
