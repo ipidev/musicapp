@@ -45,19 +45,18 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int score=0x7f02000a;
     }
     public static final class id {
-        public static final int action_settings=0x7f0a000d;
+        public static final int action_settings=0x7f0a000c;
         public static final int bpmBar=0x7f0a0008;
-        public static final int button_play=0x7f0a000a;
-        public static final int button_stop=0x7f0a000b;
-        public static final int checkBox1=0x7f0a0005;
+        public static final int button_play=0x7f0a0009;
+        public static final int button_stop=0x7f0a000a;
+        public static final int checkBox1=0x7f0a0006;
         public static final int dummy_button=0x7f0a0002;
+        public static final int editor=0x7f0a0003;
         public static final int fullscreen_content=0x7f0a0000;
         public static final int fullscreen_content_controls=0x7f0a0001;
-        public static final int linearLayout1=0x7f0a0006;
-        public static final int my_view=0x7f0a0009;
-        public static final int playButton=0x7f0a0004;
-        public static final int recordButton=0x7f0a0003;
-        public static final int slider=0x7f0a000c;
+        public static final int playButton=0x7f0a0005;
+        public static final int recordButton=0x7f0a0004;
+        public static final int slider=0x7f0a000b;
         public static final int stopButton=0x7f0a0007;
     }
     public static final class layout {

@@ -8,6 +8,7 @@ import android.content.Context;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.media.SoundPool.OnLoadCompleteListener;
+import android.util.Log;
 
 /**
  * Class that is responsible for loading and maintaining sounds and playing
@@ -151,6 +152,7 @@ public class SoundPlayer
 	public void play(int sampleID, int pitch)
 	{
 		play(sampleID, pitch, 1.0f, 0.0f);
+		Log.d("PLAYA", "PLAYING at " + pitch);
 	}
 	
 	/**

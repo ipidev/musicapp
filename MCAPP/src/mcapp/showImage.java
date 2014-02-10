@@ -1,6 +1,5 @@
 package mcapp;
 
-import info.ipidev.mcapp.MainActivity;
 import info.ipidev.mcapp.R;
 
 import java.util.Vector;
@@ -18,12 +17,18 @@ import android.util.Pair;
 import android.view.MotionEvent;
 import android.view.View;
 
-class showImage extends View 
-{		
+/**
+ * Responsible for... Perhaps also give this a better name.
+ * @author Shavarsh
+ *
+ */
+public class ShowImage extends View 
+{
+	//It would be nice if this and the Score were united some day.
 	Vector<Pair<Integer, Integer>> _notePositions = new Vector<Pair<Integer, Integer>>();
 	Canvas _canvas;
 	Paint _paint = new Paint();
-	static MainActivity _main;
+	//static MainActivity _main;
 	
 	Bitmap _score = BitmapFactory.decodeResource(getResources(), R.drawable.score);
 	Bitmap _note = BitmapFactory.decodeResource(getResources(), R.drawable.note);
@@ -37,20 +42,36 @@ class showImage extends View
 	float _eventX = 1000;
 	float _eventY = 1000;
 	
-	public static void getIstance(MainActivity main) 
+	/**
+	 * Reference to the current song.
+	 */
+	private static Song _song;
+	
+	/*public static void getIstance(MainActivity main) 
 	{
 		_main = main;		
-	}
+	}*/
 	
-	public showImage (Context context) 
+	public ShowImage(Context context) 
 	{
 		super(context);    
     }
  
-    public showImage (Context context, AttributeSet attrs) 
+    public ShowImage(Context context, AttributeSet attrs) 
     {
         super(context);
     }    
+    
+    /**
+	 * Sets the song. In the future this will also need to display all of the
+	 * notes. This has to be static because otherwise you get a null reference
+	 * exception when the app is created.
+	 * @param song
+	 */
+	public static void setSong(Song song)
+	{
+		_song = song;
+	}
 
 	@Override
     public void onDraw (Canvas canvas) 
@@ -124,12 +145,15 @@ class showImage extends View
 		    if(_notePositions.contains(tempPair))
 		    {
 		    	_notePositions.remove(tempPair);
-		    	_main.removeFromGrid(horPosition - 1, vertPosition - 1);
+		    	_song.getScore(0).removeNote(horPosition - 1, vertPosition - 8);
+		    	//_main.removeFromGrid(horPosition - 1, vertPosition - 1);
 		    }
 		    else
 		    {		    	
-		    	_notePositions.add(tempPair);		    	
-				_main.addToGrid(horPosition - 1, vertPosition - 1);
+		    	_notePositions.add(tempPair);		 
+		    	if (_song.getScore(0).addNote(horPosition - 1, vertPosition - 8, 0))
+		    		Log.d("PLAYA", "NOTE ADDING SUCCESSFUL!!!");
+				//_main.addToGrid(horPosition - 1, vertPosition - 1);
 		    }		    
 		    _column = 1000;
 		    _row = 1000;

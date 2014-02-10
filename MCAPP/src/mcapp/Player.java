@@ -1,5 +1,7 @@
 package mcapp;
 
+import android.util.Log;
+
 
 /**
  * Class responsible for handling any sound output as well as progressing
@@ -64,6 +66,7 @@ public class Player
 	public void play()
 	{
 		_isPlaying = true;
+		Log.d("PLAYA", "START PLAYING");
 	}
 	
 	/**
@@ -82,6 +85,7 @@ public class Player
 		_isPlaying = false;
 		_currentBeat = -1;
 		_nextBeatCount = 0.0f;
+		Log.d("PLAYA", "STOP PLAYING");
 	}
 	
 	/**
@@ -130,15 +134,27 @@ public class Player
 			if (_nextBeatCount >= _secondsPerBeat)
 			{
 				_currentBeat++;
-				_nextBeatCount -= _secondsPerBeat;
+				Log.d("PLAYA", "TIME 4 BEAT " + _currentBeat);
 				
-				//Play notes from song.
-				Beat beat = _song.getScore(_currentScore).getBeat(_currentBeat);
-				
-				for (int i = 0; i < Global.MAX_POLYPHONY; ++i)
+				//If the player has reached the end of the score, stop.
+				if (_currentBeat >= Global.BEATS_PER_SCORE)
+					stop();
+				else
 				{
-					if (!beat.isEmpty(i))
-						_soundPlayer.play(1, beat.getNote(i).getPitch());
+					_nextBeatCount -= _secondsPerBeat;
+					
+					//Play notes from song.
+					Beat beat = _song.getScore(_currentScore).getBeat(_currentBeat);
+					
+					if (beat != null)
+					{
+						Log.d("PLAYA", "DA BEAT " + beat.toString());
+						for (int i = 0; i < Global.MAX_POLYPHONY; ++i)
+						{
+							if (!beat.isEmpty(i))
+								_soundPlayer.play(Global.pianoID, beat.getNote(i).getPitch());
+						}
+					}
 				}
 			}
 		}

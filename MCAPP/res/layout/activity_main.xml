@@ -7,6 +7,11 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".MainActivity" >
+    
+    <mcapp.ShowImage
+        android:id="@+id/editor"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
 
     <Button
         android:id="@+id/recordButton"
@@ -22,7 +27,8 @@
         android:layout_height="wrap_content"
         android:layout_alignBottom="@+id/checkBox1"
         android:layout_alignParentLeft="true"
-        android:text="@string/button_play" />
+        android:text="@string/button_play"
+        android:onClick="onPlayButton" />
 
     <CheckBox
         android:id="@+id/checkBox1"
@@ -34,17 +40,6 @@
         android:layout_toLeftOf="@+id/recordButton"
         android:text="@string/checkBox_useRecording" />
 
-    <LinearLayout
-        android:id="@+id/linearLayout1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignTop="@+id/checkBox1"
-        android:layout_toRightOf="@+id/stopButton" 
-        android:orientation="horizontal"
-        >
-        
-    </LinearLayout>
-
     <Button
         android:id="@+id/stopButton"
         android:layout_width="wrap_content"
@@ -52,7 +47,8 @@
         android:layout_alignBaseline="@+id/playButton"
         android:layout_alignBottom="@+id/playButton"
         android:layout_toRightOf="@+id/playButton"
-        android:text="@string/button_stop" />
+        android:text="@string/button_stop"
+        android:onClick="onStopButton" />
 
     <SeekBar
         android:id="@+id/bpmBar"
@@ -61,6 +57,7 @@
         android:layout_alignTop="@+id/checkBox1"
         android:layout_toLeftOf="@+id/checkBox1"
         android:layout_toRightOf="@+id/stopButton"
-        android:max="250" />
+        android:max="250"
+        android:progress="120" />
 
 </RelativeLayout>
