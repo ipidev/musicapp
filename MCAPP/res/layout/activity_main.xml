@@ -19,7 +19,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
-        android:text="@string/button_startRecording" />
+        android:text="@string/button_startRecording"
+        android:onClick="onRecordButton" />
 
     <Button
         android:id="@+id/playButton"
@@ -38,7 +39,8 @@
         android:layout_alignBottom="@+id/recordButton"
         android:layout_marginRight="11dp"
         android:layout_toLeftOf="@+id/recordButton"
-        android:text="@string/checkBox_useRecording" />
+        android:text="@string/checkBox_useRecording"
+        android:onClick="onRecordCheckBox" />
 
     <Button
         android:id="@+id/stopButton"

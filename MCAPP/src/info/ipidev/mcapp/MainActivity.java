@@ -8,11 +8,14 @@ import mcapp.Player;
 import mcapp.ShowImage;
 import mcapp.Song;
 import mcapp.SoundPlayer;
+import mcapp.SoundRecorder;
 import android.app.Activity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 //import mcapp.Timer;
@@ -41,9 +44,14 @@ public class MainActivity extends Activity
 	private Song _song = null;
 	
 	/**
-	 * The song editor view. Give this a better name in the future.
+	 * The song editor view. Give this a better name in the future (like Display)
 	 */
 	private ShowImage _showImage = null;
+	
+	/**
+	 * Responsible for recording and saving new sounds.
+	 */
+	private SoundRecorder _soundRecorder = null;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -63,6 +71,8 @@ public class MainActivity extends Activity
 		
 		_showImage = (ShowImage)findViewById(R.id.editor);
 		ShowImage.setSong(_song);
+		
+		_soundRecorder = new SoundRecorder();
 		
 		//Set up timer. Replace me.
 		_timer = new Timer();
@@ -116,7 +126,7 @@ public class MainActivity extends Activity
 	 */
 	public void onPlayButton(View view)
 	{
-		if (!_player.isPlaying())
+		if (!_player.isPlaying() && !_soundRecorder.isRecording())
 		{
 			//Start playing.
 			_player.play();
@@ -148,15 +158,50 @@ public class MainActivity extends Activity
 	}
 	
 	/**
-	 * Event called when the BPM seek bar's value is changed.
-	 * @param seekBar The seek bar.
-	 * @param progress The new value of the seek bar.
-	 * @param fromUser Whether or not the user made this change.
+	 * Event called when the record button is clicked.
+	 * @param view The view that was clicked.
 	 */
-	public void onBpmChanged(SeekBar seekBar, int progress, boolean fromUser)
+	public void onRecordButton(View view)
 	{
-		if (progress != 0)
-			_player.setBpm(progress);
+		if (!_soundRecorder.isRecording())
+		{
+			//Start recording.
+			_soundRecorder.start("temp");
+			_player.stop();
+			
+			Button button = (Button)view;
+			button.setText(R.string.button_stopRecording);
+			
+			//Unload the current recorded sample from memory (if any).
+			if (Global.recordedID != 0)
+			{
+				_soundPlayer.unload(Global.recordedID);
+				Global.recordedID = 0;
+			}	
+		}
+		else
+		{
+			//Stop recording.
+			_soundRecorder.stop();
+			
+			Button button = (Button)view;
+			button.setText(R.string.button_startRecording);
+			
+			//Load the new sample.
+			Global.recordedID = _soundPlayer.load(_soundRecorder.getFilePath());
+		}
+	}
+	
+	/**
+	 * Event called when the use recorded sound checkbox is clicked.
+	 * @param view The view that was clicked.
+	 */
+	public void onRecordCheckBox(View view)
+	{
+		CheckBox checkbox = (CheckBox)view;
+		
+		if (!_soundRecorder.isRecording())
+			Global.useRecordedSound = checkbox.isChecked();
 	}
 }
 

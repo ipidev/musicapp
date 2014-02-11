@@ -19,7 +19,7 @@ import android.view.View;
 
 /**
  * Responsible for... Perhaps also give this a better name.
- * @author Shavarsh
+ * @author Shavarsh, Sean
  *
  */
 public class ShowImage extends View 
@@ -47,10 +47,16 @@ public class ShowImage extends View
 	 */
 	private static Song _song;
 	
-	/*public static void getIstance(MainActivity main) 
+	/**
+	 * Allows for conversion from the grid-based placing of notes to the pitches
+	 * of the notes in the song.
+	 */
+	private static final int[] GRID_TO_PITCH =
 	{
-		_main = main;		
-	}*/
+		/* A5 */ 9, 7, 5, 4, 2, 0, -1,
+		/* A4 */ -3, -5, -7, -8, -10, -12, -13,
+		/* A3 */ -15
+	};
 	
 	public ShowImage(Context context) 
 	{
@@ -140,18 +146,21 @@ public class ShowImage extends View
 		//Release
 		if(event.getAction() == MotionEvent.ACTION_UP)
 		{
-		    Pair tempPair = new Pair(_column, _row);
+		    Pair<Integer, Integer> tempPair = new Pair<Integer, Integer>(_column, _row);
 		    //Check if there's already a note there		    
 		    if(_notePositions.contains(tempPair))
 		    {
 		    	_notePositions.remove(tempPair);
-		    	_song.getScore(0).removeNote(horPosition - 1, vertPosition - 8);
+		    	_song.getScore(0).removeNote(horPosition - 1,
+		    								 GRID_TO_PITCH[vertPosition - 1]);
 		    	//_main.removeFromGrid(horPosition - 1, vertPosition - 1);
 		    }
 		    else
-		    {		    	
+		    {
 		    	_notePositions.add(tempPair);		 
-		    	if (_song.getScore(0).addNote(horPosition - 1, vertPosition - 8, 0))
+		    	if (_song.getScore(0).addNote(horPosition - 1,
+						 					  GRID_TO_PITCH[vertPosition - 1],
+						 					  0))
 		    		Log.d("PLAYA", "NOTE ADDING SUCCESSFUL!!!");
 				//_main.addToGrid(horPosition - 1, vertPosition - 1);
 		    }		    

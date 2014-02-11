@@ -20,7 +20,18 @@ public class Global
 	/**
 	 * The ID of the piano sample. Very very temporary.
 	 */
-	public static int pianoID;
+	public static int pianoID = 0;
+	
+	/**
+	 * The ID of the recorded sound. Just as temporary.
+	 */
+	public static int recordedID = 0;
+	
+	/**
+	 * Whether or not to use the recorded sound.
+	 */
+	public static boolean useRecordedSound = false;
+	
 	
 	private Global()
 	{
