@@ -12,29 +12,39 @@ public class Song
 	//Member Variables
 	String _name;
 	String _description;
-	
+
 	//Temp Score;
 	Score tScore;
-	
+
 	/**
-	 * Intialises default song setup;
+	 * Initialises default song setup;
 	 */
-	public Song ()
+	public Song()
 	{
 		_name = "New Song";
 		_description = "Default";
 		tScore = new Score();
 	}
-	
+
 	/**
-	 * Intialises saved song through creation or import.
+	 * Initialises saved song through creation or import.
 	 * @param name User-defined name of instance
 	 * @param description User-define description of song.
 	 */
-	public Song (String name, String description)
+	public Song(String name, String description)
 	{
 		_name = name;
 		_description = description;
 		tScore = new Score();
+	}
+	
+	/**
+	 * Accessor for a score.
+	 * @param index Score index number.
+	 * @return The Score object.
+	 */
+	public Score getScore(int index)
+	{
+		return tScore;
 	}
 }

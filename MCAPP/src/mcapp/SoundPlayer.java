@@ -8,6 +8,7 @@ import android.content.Context;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.media.SoundPool.OnLoadCompleteListener;
+import android.util.Log;
 
 /**
  * Class that is responsible for loading and maintaining sounds and playing
@@ -34,10 +35,6 @@ public class SoundPlayer
 	 */
 	private boolean _isReady = false;
 	
-	/**
-	 * Maximum number of sounds that can be played by the SoundPool at once.
-	 */
-	private static final int MAX_STREAMS = 3;
 	
 	/**
 	 * Conversion table from notes to playback rate. This table assumes that
@@ -45,11 +42,12 @@ public class SoundPlayer
 	 */
 	private static final float[] NOTE_FREQUENCIES =
 	{
+		/* A 3 */ 0.42045f, 0.44545f, 0.47194f,
 		/* C 4 */ 0.50001f, 0.52973f, 0.56122f, 0.59461f, 0.62997f, 0.66742f,
 		/* F#4 */ 0.70710f, 0.74916f, 0.79369f, 0.84090f, 0.89089f, 0.94387f,
 		/* C 5 */ 1.00000f, 1.05947f, 1.12247f, 1.18920f, 1.25991f, 1.33485f,
 		/* F#5 */ 1.41422f, 1.49831f, 1.58741f, 1.68180f, 1.78181f, 1.88776f,
-		/* C 6 */ 2.00000f
+		/* C 6 */ 2.00000f, 2.11893f, 2.24493f, 2.37842f
 	};
 	
 	/**
@@ -70,7 +68,8 @@ public class SoundPlayer
 		_activity.setVolumeControlStream(AudioManager.STREAM_MUSIC);
 		
 		//Create the SoundPool.
-		_soundPool = new SoundPool(MAX_STREAMS, AudioManager.STREAM_MUSIC, 0);
+		_soundPool = new SoundPool(Global.MAX_POLYPHONY,
+								   AudioManager.STREAM_MUSIC, 0);
 		
 		//Callback function for when the SoundPool is created.
 		_soundPool.setOnLoadCompleteListener(new OnLoadCompleteListener()
@@ -116,8 +115,10 @@ public class SoundPlayer
 	 */
 	public int load(String path)
 	{
+		Log.d("MCAPP", "Loading path: " + path);
 		int id = _soundPool.load(path, 1);
 		_loadedSamples.add(id);
+		Log.d("MCAPP", "New sound ID: " + id);
 		return id;
 	}
 	
@@ -141,7 +142,7 @@ public class SoundPlayer
         
         //Play!!
         _soundPool.play(sampleID, finalVolume, finalVolume, 1, 0,
-        				NOTE_FREQUENCIES[pitch + 12]);
+        				NOTE_FREQUENCIES[pitch + 15]);
 	}
 	
 	/**

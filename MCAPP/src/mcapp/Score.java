@@ -1,115 +1,73 @@
 package mcapp;
 
 /**
- * Class is responsible for the creation and storing of the musical layout.
+ * Responsible for the creation and storing of the musical layout.
  * 
- * @author Josh
+ * @author Josh, Sean
  *
  */
 public class Score 
 {
-	Beat[] _score;
-	Beat _beat;
-	
+	Beat[] _beats;
+
 	/**
 	 * Default Constructor
 	 */
-	public Score ()
+	public Score()
 	{
-		_beat = new Beat();
-		SetScore();
+		_beats = new Beat[Global.BEATS_PER_SCORE];
 	}
-	
+
 	/**
-	 * Constructor for Loaded File
-	 * @param score Score to be Loaded. 
+	 * Constructor for loaded file
+	 * @param score Collection of beats used for this score. 
 	 * */
-	public Score (Beat[] score)
+	public Score(Beat[] beats)
 	{
-		_beat = new Beat();
-		SetScore(score);
+		_beats = new Beat[Global.BEATS_PER_SCORE];
+	}
+
+	/**
+	 * Accessor for a Beat.
+	 * @param position The target position in the Score.
+	 * @return The Beat object, or null if the position is empty.
+	 */
+	public Beat getBeat(int position)
+	{
+		return _beats[position];
 	}
 	
 	/**
-	 * Set for Score instance. New Score
+	 * Adds a Note to the Score.
+	 * @param position Position in the Score.
+	 * @param pitch Pitch of new Note.
+	 * @param instrumentID Instrument ID of new Note.
+	 * @return True if the operation was successful, false if the position
+	 * was occupied by the same note.
 	 */
-	public void SetScore()
+	public boolean addNote(int position, int pitch, int instrumentID)
 	{
-		_score = new Beat[12];
-	}
-	
-	/**
-	 * Sets Score instance. Used while Loading.
-	 * @param score Score instance to be loaded.
-	 */
-	public void SetScore(Beat[] score)
-	{
-		_score = score;
-	}
-	
-	/**
-	 * Returns Score instance
-	 * @return Current Score instance
-	 */
-	public Beat[] GetScore()
-	{
-		return _score;
-	}
-	
-	/**
-	 * Adds Beat instance to Score. Adds Sample to Beat object.
-	 * @param x Position in Score Array
-	 * @param sampleID ID of Sample used
-	 * @param instrumentID Instrument ID of Sample
-	 * @param pitch Attribute of Sample
-	 */
-	public void AddToScore(int x, int sampleID, int instrumentID, int pitch)
-	{
-		//Checks if position in Score is empty
-		if(_score[x] == null)
-		{
-			_beat = new Beat();
-			_score[x]= _beat;
-		}
+		//Adds a new Beat object if the current position is empty.
+		if(_beats[position] == null)
+			_beats[position] = new Beat();
 		
-		//Loads stored Beat
-		_score[x] = _beat;
-		
-		if(_beat.GetSize() < 3)
-		{
-			_beat.AddSample(sampleID, instrumentID, pitch);
-			_score[x] = _beat;
-		}
-		else
-		{
-			//Error. Beat is full at location.
-		}
+		return _beats[position].addNote(instrumentID, pitch);
 	}
-	
+
 	/**
 	 * Removes a Sample or Beat from the Score array.
-	 * @param x Position in Score Array
-	 * @param y Position in Sample List
+	 * @param position Position in the Score.
+	 * @param pitch Pitch used for determining which Note to delete.
 	 * @param deleteAll Check if Beat or Sample is to be deleted
+	 * @return True if the operation was successful, false if there was no
+	 * note at the given position.
 	 */
-	public void RemoveFromScore(int x, int y, boolean deleteAll)
+	public boolean removeNote(int position, int pitch)
 	{
-		//Check current values
-		if(_score[x] != null)
-		{
-			//Delete Beat or Sample
-			if(deleteAll != true)
-			{
-				_score[x].RemoveSample(y);
-			}
-			else
-			{
-				_score[x] = null;
-			}
-		}
-		else
-		{
-			//Note not occupying current space. Error Logic
-		}
+		if(_beats[position] != null)
+			return _beats[position].removeNote(pitch);
+
+		//The position was empty.
+		return false;
 	}
 }

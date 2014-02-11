@@ -1,22 +1,57 @@
 package info.ipidev.mcapp;
 
-import info.ipidev.mcapp.R;
-import java.util.Random;
+import java.util.Timer;
+import java.util.TimerTask;
 
+import mcapp.Global;
+import mcapp.Player;
+import mcapp.ShowImage;
+import mcapp.Song;
 import mcapp.SoundPlayer;
+import mcapp.SoundRecorder;
 import android.app.Activity;
-import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.View;
+import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.SeekBar;
+import android.widget.SeekBar.OnSeekBarChangeListener;
+//import mcapp.Timer;
 
-public class MainActivity extends Activity {
-	
-	//Plays sounds.
+public class MainActivity extends Activity
+{
+	/**
+	 * Loads, plays and unloads sounds.
+	 */
 	private SoundPlayer _soundPlayer = null;
 	
-	//ID for the piano sound.
-	private int _pianoID;
+	/**
+	 * Responsible for traversing through the song and playing it.
+	 */
+	private Player _player = null;
+	
+	/**
+	 * Responsible for keeping track of how long each update step takes. I
+	 * should replace this with my own Timer class eventually.
+	 */
+	private Timer _timer = null;
+	
+	/**
+	 * Holds the song data.
+	 */
+	private Song _song = null;
+	
+	/**
+	 * The song editor view. Give this a better name in the future (like Display)
+	 */
+	private ShowImage _showImage = null;
+	
+	/**
+	 * Responsible for recording and saving new sounds.
+	 */
+	private SoundRecorder _soundRecorder = null;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -27,7 +62,46 @@ public class MainActivity extends Activity {
 		
 		//Set up sound player and load the sample.
 		_soundPlayer = new SoundPlayer(this);
-		_pianoID = _soundPlayer.load(R.raw.piano);
+		Global.pianoID = _soundPlayer.load(R.raw.piano);
+		
+		//Create other stuff.
+		_song = new Song();
+		_player = new Player(_song, _soundPlayer);
+		_player.setBpm(120);
+		
+		_showImage = (ShowImage)findViewById(R.id.editor);
+		ShowImage.setSong(_song);
+		
+		_soundRecorder = new SoundRecorder();
+		
+		//Set up timer. Replace me.
+		_timer = new Timer();
+		_timer.scheduleAtFixedRate(new Updater(this), 0, 100);
+		
+		//Set up seek bar.
+		SeekBar bpmBar = (SeekBar)findViewById(R.id.bpmBar);
+		bpmBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener()
+		{
+			int _progress;
+			
+			@Override
+			public void onStartTrackingTouch(SeekBar seekBar) {}
+			
+			@Override
+			public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser)
+			{
+				_progress = progress;
+				if (_progress != 0)
+					_player.setBpm(_progress);
+			}
+			
+			@Override
+			public void onStopTrackingTouch(SeekBar seekBar)
+			{
+				if (_progress != 0)
+					_player.setBpm(_progress);
+			}
+		});
 	}
 
 	@Override
@@ -38,52 +112,116 @@ public class MainActivity extends Activity {
 		return true;
 	}
 	
-	//Method that plays the sound at different pitches when a button is pressed.
-	public void onKeyPress(View view)
+	/**
+	 * This is the method called by java.util.Timer.
+	 */
+	public void run()
 	{
-		switch (view.getId())
-		{
-		case R.id.keyC:
-			_soundPlayer.play(_pianoID, 0);
-			break;
-		case R.id.keyD:
-			_soundPlayer.play(_pianoID, 2);
-			break;
-		case R.id.keyE:
-			_soundPlayer.play(_pianoID, 4);
-			break;
-		case R.id.keyF:
-			_soundPlayer.play(_pianoID, 5);
-			break;
-		case R.id.keyG:
-			_soundPlayer.play(_pianoID, 7);
-			break;
-		case R.id.keyA:
-			_soundPlayer.play(_pianoID, 9);
-			break;
-		case R.id.keyB:
-			_soundPlayer.play(_pianoID, 11);
-			break;
-		case R.id.keyCup:
-			_soundPlayer.play(_pianoID, 12);
-			break;
-		default:
-			throw new RuntimeException("Unknown button ID.");
-		}
-		
-		//Debug
-		findViewById(R.id.testText).setBackgroundColor(Color.argb(255, randInt(0, 255), randInt(0, 255), randInt(0, 255)));
+		_player.update(0.1f);
 	}
 	
-	public static int randInt(int min, int max)
+	/**
+	 * Event called when the play/pause button is clicked.
+	 * @param view The view that was clicked.
+	 */
+	public void onPlayButton(View view)
 	{
-	    // Usually this can be a field rather than a method variable
-	    Random rand = new Random();
+		if (!_player.isPlaying() && !_soundRecorder.isRecording())
+		{
+			//Start playing.
+			_player.play();
+			
+			Button button = (Button)view;
+			button.setText(R.string.button_pause);
+		}
+		else
+		{
+			//Pause.
+			_player.pause();
+			
+			Button button = (Button)view;
+			button.setText(R.string.button_play);
+		}
+	}
+	
+	/**
+	 * Event called when the stop button is clicked.
+	 * @param view The view that was clicked.
+	 */
+	public void onStopButton(View view)
+	{
+		//Stop.
+		_player.stop();
+		
+		Button button = (Button)findViewById(R.id.playButton);
+		button.setText(R.string.button_play);
+	}
+	
+	/**
+	 * Event called when the record button is clicked.
+	 * @param view The view that was clicked.
+	 */
+	public void onRecordButton(View view)
+	{
+		if (!_soundRecorder.isRecording())
+		{
+			//Start recording.
+			_soundRecorder.start("temp");
+			_player.stop();
+			
+			Button button = (Button)view;
+			button.setText(R.string.button_stopRecording);
+			
+			//Unload the current recorded sample from memory (if any).
+			if (Global.recordedID != 0)
+			{
+				_soundPlayer.unload(Global.recordedID);
+				Global.recordedID = 0;
+			}	
+		}
+		else
+		{
+			//Stop recording.
+			_soundRecorder.stop();
+			
+			Button button = (Button)view;
+			button.setText(R.string.button_startRecording);
+			
+			//Load the new sample.
+			Global.recordedID = _soundPlayer.load(_soundRecorder.getFilePath());
+		}
+	}
+	
+	/**
+	 * Event called when the use recorded sound checkbox is clicked.
+	 * @param view The view that was clicked.
+	 */
+	public void onRecordCheckBox(View view)
+	{
+		CheckBox checkbox = (CheckBox)view;
+		
+		if (!_soundRecorder.isRecording())
+			Global.useRecordedSound = checkbox.isChecked();
+	}
+}
 
-	    // nextInt is normally exclusive of the top value,
-	    // so add 1 to make it inclusive
-	    int randomNum = rand.nextInt((max - min) + 1) + min;
-
-	    return randomNum;
+/**
+ * Stupid class that contains the callback function for the Timer... all the
+ * more reason to properly implement my own.
+ * @author Sean
+ *
+ */
+class Updater extends TimerTask
+{
+	MainActivity _mainActivity;
+	
+	public Updater(MainActivity mainActivity)
+	{
+		_mainActivity = mainActivity;
+	}
+	
+	public void run()
+	{
+		_mainActivity.run();
 	}
 }
