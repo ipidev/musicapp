@@ -106,6 +106,15 @@ public class Player
 	}
 	
 	/**
+	 * Gets the player's current beat. Used for playing animation.
+	 * @return The current beat the player is at.
+	 */
+	public float getCurrentBeat()
+	{
+		return _currentBeat;
+	}
+	
+	/**
 	 * Sets the BPM (beats per minute) of the song.
 	 * @param bpm The new BPM.
 	 */

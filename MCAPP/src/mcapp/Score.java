@@ -70,4 +70,12 @@ public class Score
 		//The position was empty.
 		return false;
 	}
+	
+	public void clearScore()
+	{
+		for(int i = 0; i < _beats.length; i++)
+		{
+			_beats[i] = null;
+		}
+	}
 }

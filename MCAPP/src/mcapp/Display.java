@@ -18,29 +18,34 @@ import android.view.MotionEvent;
 import android.view.View;
 
 /**
- * Responsible for... Perhaps also give this a better name.
+ * Responsible for... Perhaps also give this a better name. - Done.
  * @author Shavarsh, Sean
  *
  */
-public class ShowImage extends View 
+public class Display extends View 
 {
 	//It would be nice if this and the Score were united some day.
-	Vector<Pair<Integer, Integer>> _notePositions = new Vector<Pair<Integer, Integer>>();
+	static Vector<Pair<Integer, Integer>> _notePositions = new Vector<Pair<Integer, Integer>>();
 	Canvas _canvas;
 	Paint _paint = new Paint();
-	//static MainActivity _main;
 	
 	Bitmap _score = BitmapFactory.decodeResource(getResources(), R.drawable.score);
 	Bitmap _note = BitmapFactory.decodeResource(getResources(), R.drawable.note);
 	Bitmap _tempNote = BitmapFactory.decodeResource(getResources(), R.drawable.note_temp);
 	Bitmap _indicator = BitmapFactory.decodeResource(getResources(), R.drawable.indicator);
 	Rect _bottombar = new Rect(0, 335, 760, 405);
+	
 	int _column = 1000;
 	int _row = 1000;
 	int _horStep = -1;
 	int _vertStep = -1;
 	float _eventX = 1000;
 	float _eventY = 1000;
+	//Initial indicator position
+	static float _indicatorPositionX = 60;
+	float _indicatorPositionY = 30;
+	//the indicator of the "screen" currently viewed
+	static int _screenPosition = 0;
 	
 	/**
 	 * Reference to the current song.
@@ -58,12 +63,19 @@ public class ShowImage extends View
 		/* A3 */ -15
 	};
 	
-	public ShowImage(Context context) 
+	//Getter for the _screenPosition
+	public static int getScreen()
+	{
+		return _screenPosition;
+	}
+	
+	//Constructors
+	public Display(Context context) 
 	{
 		super(context);    
     }
  
-    public ShowImage(Context context, AttributeSet attrs) 
+    public Display(Context context, AttributeSet attrs) 
     {
         super(context);
     }    
@@ -78,18 +90,15 @@ public class ShowImage extends View
 	{
 		_song = song;
 	}
-
+	
+	/**
+	 * Main draw function.
+	 */
 	@Override
     public void onDraw (Canvas canvas) 
     {		
 		//Initialisation
 		_canvas = canvas;
-		//_notePositions = new Vector<Pair<Integer, Integer>>();
-		//_paint = new Paint();
-		//_score = BitmapFactory.decodeResource(getResources(), R.drawable.score);
-		//_note = BitmapFactory.decodeResource(getResources(), R.drawable.note);
-		//_tempNote = BitmapFactory.decodeResource(getResources(), R.drawable.note);
-		//_bottombar = new Rect(0, 335, 760, 405);
     	
 		//Bottom bar draw
     	_paint.setColor(Color.BLUE);    	    	
@@ -99,12 +108,17 @@ public class ShowImage extends View
     	canvas.drawBitmap(_score, 0, 30, null);
     	
     	noteDraw();
+    	indicatorDraw();
+    	changeScore();
     }
     
+	/**
+	 * Touch event handling.
+	 */
 	@Override
 	public boolean onTouchEvent(MotionEvent event) 
 	{
-		//Variables
+		//Calculating horizontal and vertical displacement.
 		_eventX = event.getX() - 150;
 	    _eventY = event.getY();
 	    int upperDistance = 20;
@@ -129,41 +143,41 @@ public class ShowImage extends View
 		{
 			horPosition = 10;
 		}
-		Log.d("ASD", String.valueOf(vertPosition));
-	    _row = (int)(upperDistance + ( _vertStep * vertPosition ) );
+		Log.d("ASD", String.valueOf(vertPosition));	    
 	    _column = (int)(leftDistance + ( _horStep * horPosition ) );
+	    _row = (int)(upperDistance + ( _vertStep * vertPosition ) );
 	    
-	    //Press down
+	    //Press down event
 		if(event.getAction() == MotionEvent.ACTION_DOWN)
 		{
 			
 		}
-		//Drag
+		//Drag event
 		if(event.getAction() == MotionEvent.ACTION_MOVE)
 		{
 			//Log.d("ASD", String.valueOf(_eventX) + " " + String.valueOf(_eventY));
 		}
-		//Release
+		//Release event
 		if(event.getAction() == MotionEvent.ACTION_UP)
 		{
-		    Pair<Integer, Integer> tempPair = new Pair<Integer, Integer>(_column, _row);
+			//Create a temporary pair
+		    Pair<Integer, Integer> tempPair = new Pair<Integer, Integer>(_column + ( _horStep * 5 * _screenPosition ), _row);
+		    
 		    //Check if there's already a note there		    
 		    if(_notePositions.contains(tempPair))
 		    {
 		    	_notePositions.remove(tempPair);
-		    	_song.getScore(0).removeNote(horPosition - 1,
+		    	_song.getScore(0).removeNote(horPosition - 1 + ( 5 * _screenPosition),
 		    								 GRID_TO_PITCH[vertPosition - 1]);
-		    	//_main.removeFromGrid(horPosition - 1, vertPosition - 1);
 		    }
 		    else
 		    {
 		    	_notePositions.add(tempPair);		 
-		    	if (_song.getScore(0).addNote(horPosition - 1,
+		    	if (_song.getScore(0).addNote(horPosition - 1 + ( 5 * _screenPosition),
 						 					  GRID_TO_PITCH[vertPosition - 1],
 						 					  0))
 		    		Log.d("PLAYA", "NOTE ADDING SUCCESSFUL!!!");
-				//_main.addToGrid(horPosition - 1, vertPosition - 1);
-		    }		    
+		    }		
 		    _column = 1000;
 		    _row = 1000;
 		    _eventX = 1000;
@@ -206,8 +220,14 @@ public class ShowImage extends View
     				_note = BitmapFactory.decodeResource(getResources(), R.drawable.note);
     				break;
     		}
-    		//Log.d("ASD", "asd + _notePosition.get(i).first + _notePositions.get(i).second");
-    		_canvas.drawBitmap(_note, _notePositions.get(i).first, _notePositions.get(i).second, null);
+    		if(_screenPosition == 0 && _notePositions.get(i).first <= _horStep * 12)
+    		{
+    			_canvas.drawBitmap(_note, _notePositions.get(i).first, _notePositions.get(i).second, null);
+    		}
+    		else if(_notePositions.get(i).first > ((_horStep * 2 ) + (_horStep * 5 * _screenPosition )) && _notePositions.get(i).first < (( _horStep * 12 ) + ( _horStep * 5 * _screenPosition )))
+    		{
+    			_canvas.drawBitmap(_note, _notePositions.get(i).first - ( _horStep * 5 * _screenPosition ), _notePositions.get(i).second, null);
+    		}
     	}
     	
     	//Temporary note draw    
@@ -236,11 +256,65 @@ public class ShowImage extends View
 				_tempNote = BitmapFactory.decodeResource(getResources(), R.drawable.note_temp);
 				break;
 		}
-    	_canvas.drawBitmap(_tempNote, _column, _row, null);	
+    	_canvas.drawBitmap(_tempNote, _column, _row, null);
 	}
 	
+	//Indicator drawing
 	public void indicatorDraw()
 	{
-		
+		_canvas.drawBitmap(_indicator, _indicatorPositionX, _indicatorPositionY, null);
+		invalidate();
+	}
+	
+	//Move indicator
+	public static void moveIndicator(float beatProgress, float currentBeat)
+	{
+		currentBeat++;
+		_indicatorPositionX = 60 + (50 * currentBeat) + (50 * beatProgress);
+	}
+	
+	//Resets the indicator's position when the player is stopped
+	public static void resetIndicatorPosition(float value)
+	{
+		_indicatorPositionX = 60;
+	}
+	
+	//Called when the score is "scrolled"
+	public static void scoreBack()
+	{
+		_screenPosition--;
+	}
+	
+	//Called when the score is "scrolled"
+	public static void scoreNext()
+	{
+		_screenPosition++;
+	}
+	
+	//Changes the score bitmap
+	public void changeScore()
+	{
+		if(_screenPosition <= 0)
+		{
+			_score = BitmapFactory.decodeResource(getResources(), R.drawable.score);
+			_screenPosition = 0;
+		}
+		else
+		{
+			if(_screenPosition % 2 != 0)
+			{
+				_score = BitmapFactory.decodeResource(getResources(), R.drawable.score_transition);
+			}
+			else
+			{
+				_score = BitmapFactory.decodeResource(getResources(), R.drawable.score_next);
+			}
+		}
+	}
+	
+	public static void clear()
+	{
+		_song.getScore(0).clearScore();
+		_notePositions.clear();
 	}
 }
