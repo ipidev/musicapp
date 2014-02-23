@@ -5,7 +5,7 @@ import java.util.TimerTask;
 
 import mcapp.Global;
 import mcapp.Player;
-import mcapp.ShowImage;
+import mcapp.Display;
 import mcapp.Song;
 import mcapp.SoundPlayer;
 import mcapp.SoundRecorder;
@@ -46,7 +46,7 @@ public class MainActivity extends Activity
 	/**
 	 * The song editor view. Give this a better name in the future (like Display)
 	 */
-	private ShowImage _showImage = null;
+	private Display _display = null;
 	
 	/**
 	 * Responsible for recording and saving new sounds.
@@ -69,8 +69,8 @@ public class MainActivity extends Activity
 		_player = new Player(_song, _soundPlayer);
 		_player.setBpm(120);
 		
-		_showImage = (ShowImage)findViewById(R.id.editor);
-		ShowImage.setSong(_song);
+		_display = (Display)findViewById(R.id.display);
+		Display.setSong(_song);
 		
 		_soundRecorder = new SoundRecorder();
 		
@@ -117,7 +117,15 @@ public class MainActivity extends Activity
 	 */
 	public void run()
 	{
+		float beat = -1;
 		_player.update(0.1f);
+		beat = _player.getCurrentBeat();
+		/*if((int)_player.getCurrentBeat() % 10 == 9)
+		{
+			_display.scoreNext();
+			beat = _player.getCurrentBeat() - 4;
+		}*/	
+		_display.moveIndicator(_player.getBeatProgress(), beat);
 	}
 	
 	/**
@@ -155,6 +163,7 @@ public class MainActivity extends Activity
 		
 		Button button = (Button)findViewById(R.id.playButton);
 		button.setText(R.string.button_play);
+		_display.resetIndicatorPosition(60.0f);
 	}
 	
 	/**
@@ -202,6 +211,29 @@ public class MainActivity extends Activity
 		
 		if (!_soundRecorder.isRecording())
 			Global.useRecordedSound = checkbox.isChecked();
+	}
+	
+	/**
+	 * Event called when the Back button is pressed
+	 * @param view The view that was clicked.
+	 */
+	public void onBackButton(View view)
+	{
+		_display.scoreBack();
+	}
+	
+	/**
+	 * Event called when the Next button is pressed
+	 * @param view The view that was clicked.
+	 */
+	public void onNextButton(View view)
+	{
+		_display.scoreNext();
+	}
+	
+	public void onClearButton(View view)
+	{
+		_display.clear();
 	}
 }
 
