@@ -6,7 +6,7 @@ import android.util.Log;
 /**
  * Class responsible for handling any sound output as well as progressing
  * through the song and playing its notes. 
- * @author Sean
+ * @author Sean, Shavarsh
  *
  */
 public class Player 

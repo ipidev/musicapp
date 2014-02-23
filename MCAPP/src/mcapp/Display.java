@@ -13,7 +13,6 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.util.Pair;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -25,7 +24,7 @@ import android.view.View;
 public class Display extends View 
 {
 	//It would be nice if this and the Score were united some day.
-	static Vector<Pair<Integer, Integer>> _notePositions = new Vector<Pair<Integer, Integer>>();
+	static Vector<Pair<Integer, Integer, Integer>> _notePositions = new Vector<Pair<Integer, Integer, Integer>>();
 	Canvas _canvas;
 	Paint _paint = new Paint();
 	
@@ -33,6 +32,8 @@ public class Display extends View
 	Bitmap _note = BitmapFactory.decodeResource(getResources(), R.drawable.note);
 	Bitmap _tempNote = BitmapFactory.decodeResource(getResources(), R.drawable.note_temp);
 	Bitmap _indicator = BitmapFactory.decodeResource(getResources(), R.drawable.indicator);
+	Bitmap _noteSelection = BitmapFactory.decodeResource(getResources(), R.drawable.note_selection);
+			
 	Rect _bottombar = new Rect(0, 335, 760, 405);
 	
 	int _column = 1000;
@@ -46,6 +47,14 @@ public class Display extends View
 	float _indicatorPositionY = 30;
 	//the indicator of the "screen" currently viewed
 	static int _screenPosition = 0;
+	//Flags for additional menu
+	boolean _isNoteChoosingActive = false;
+	boolean _isMenuActive = false;
+	//Menu position
+	float _menuX = 130;
+	float _menuY = 100;
+	//Targeted note
+	int _noteToChange;
 	
 	/**
 	 * Reference to the current song.
@@ -108,6 +117,14 @@ public class Display extends View
     	canvas.drawBitmap(_score, 0, 30, null);
     	
     	noteDraw();
+    	if(!_isNoteChoosingActive)
+    	{
+    		temporaryNoteDraw();
+    	}
+    	else
+    	{
+    		noteChooseMenuDraw();
+    	}    	
     	indicatorDraw();
     	changeScore();
     }
@@ -118,13 +135,14 @@ public class Display extends View
 	@Override
 	public boolean onTouchEvent(MotionEvent event) 
 	{
+		Pair<Integer, Integer, Integer> tempPair;
 		//Calculating horizontal and vertical displacement.
 		_eventX = event.getX() - 150;
 	    _eventY = event.getY();
 	    int upperDistance = 20;
 	    int leftDistance = 80;
 	    _vertStep = 18;
-	    _horStep = 50;
+	    _horStep = 75;
 	    int vertPosition =  ( (int)_eventY - upperDistance ) / _vertStep;
 	    if(vertPosition < 1)
 		{
@@ -142,8 +160,7 @@ public class Display extends View
 		if(horPosition > 10)
 		{
 			horPosition = 10;
-		}
-		Log.d("ASD", String.valueOf(vertPosition));	    
+		}  
 	    _column = (int)(leftDistance + ( _horStep * horPosition ) );
 	    _row = (int)(upperDistance + ( _vertStep * vertPosition ) );
 	    
@@ -155,35 +172,125 @@ public class Display extends View
 		//Drag event
 		if(event.getAction() == MotionEvent.ACTION_MOVE)
 		{
-			//Log.d("ASD", String.valueOf(_eventX) + " " + String.valueOf(_eventY));
+			//Log.d("ASD", String.valueOf(_eventX) + " " + String.valueOf(_eventY));			
 		}
 		//Release event
 		if(event.getAction() == MotionEvent.ACTION_UP)
-		{
-			//Create a temporary pair
-		    Pair<Integer, Integer> tempPair = new Pair<Integer, Integer>(_column + ( _horStep * 5 * _screenPosition ), _row);
+		{	
+			_eventX = event.getX();
+			_eventY = event.getY();
+			if(_eventX > _menuX && _eventX < _menuX + _noteSelection.getWidth()
+					&& _eventY > _menuY && _eventY < _menuY + _noteSelection.getHeight()
+					&& _isNoteChoosingActive && _isMenuActive)
+			{
+				int length = 1;
+				switch(( (int)_eventX - (int)_menuX ) / 83) // 83 needs to be stored somewhere! Fix when addressing scaling
+				{
+					case 0:
+						length = 2;
+						break;
+					case 1:
+						length = 4;
+						break;
+					case 2:
+						length = 8;
+						break;
+					case 3:
+						length = 16;
+						break;
+					case 4:
+						length = 32;
+						break;
+					case 5:
+						length = 64;
+						break;
+					default:
+						break;
+				}
+				_notePositions.get(_noteToChange).setR(length);
+				_isMenuActive = false;
+			}
+			else
+			{
+				_isMenuActive = false;
+			}
 		    
-		    //Check if there's already a note there		    
-		    if(_notePositions.contains(tempPair))
+			 //Note choosing menu initial check logic
+			if(!_isNoteChoosingActive)
+			{
+				_eventX = event.getX();
+			    _eventY = event.getY();
+			    vertPosition =  ( (int)_eventY - upperDistance ) / _vertStep;
+			    if(vertPosition < 1)
+				{
+			    	vertPosition = 1;
+				}
+				if(vertPosition > 15)
+				{
+					vertPosition = 15;
+				}
+				horPosition = ( (int)_eventX - leftDistance ) / _horStep;
+				if(horPosition < 1)
+				{
+					horPosition = 1;
+				}
+				if(horPosition > 10)
+				{
+					horPosition = 10;
+				}
+				int tempColumn = (int)(leftDistance + ( _horStep * horPosition ) );
+			    int tempRow = (int)(upperDistance + ( _vertStep * vertPosition ) );
+			    
+			    //Create a temporary pair
+			    tempPair = new Pair<Integer, Integer, Integer>(tempColumn + ( _horStep * 5 * _screenPosition ), tempRow, 1);
+			    
+			    //Check if there's a note on that location	    
+			    if(_notePositions.contains(tempPair))
+			    {
+			    	_isNoteChoosingActive = true;
+			    	_isMenuActive = true;
+			    	_noteToChange = _notePositions.indexOf(tempPair);
+			    }
+			    else
+			    {
+			    	_isMenuActive = false;
+			    	
+			    }
+			}
+			
+		    //Draw a note if the note choosing menu is not active
+			if(!_isNoteChoosingActive)
+			{	
+				//Create a temporary pair
+			    tempPair = new Pair<Integer, Integer, Integer>(_column + ( _horStep * 5 * _screenPosition ), _row, 1);
+			    
+			    //Check if there's already a note there		    
+			    if(_notePositions.contains(tempPair))
+			    {
+			    	_notePositions.remove(tempPair);
+			    	_song.getScore(0).removeNote(horPosition - 1 + ( 5 * _screenPosition),
+			    								 GRID_TO_PITCH[vertPosition - 1]);
+			    }
+			    else
+			    {
+			    	_notePositions.add(tempPair);		 
+			    	if (_song.getScore(0).addNote(horPosition - 1 + ( 5 * _screenPosition),
+							 					  GRID_TO_PITCH[vertPosition - 1],
+							 					  0))
+			    		Log.d("PLAYA", "NOTE ADDING SUCCESSFUL!!!");
+			    }			    
+			}
+			
+		    if(!_isMenuActive)
 		    {
-		    	_notePositions.remove(tempPair);
-		    	_song.getScore(0).removeNote(horPosition - 1 + ( 5 * _screenPosition),
-		    								 GRID_TO_PITCH[vertPosition - 1]);
+		    	_isNoteChoosingActive = false;
 		    }
-		    else
-		    {
-		    	_notePositions.add(tempPair);		 
-		    	if (_song.getScore(0).addNote(horPosition - 1 + ( 5 * _screenPosition),
-						 					  GRID_TO_PITCH[vertPosition - 1],
-						 					  0))
-		    		Log.d("PLAYA", "NOTE ADDING SUCCESSFUL!!!");
-		    }		
-		    _column = 1000;
+		    
+		   
+			_column = 1000;
 		    _row = 1000;
-		    _eventX = 1000;
-		    _eventY = 1000;
-		}		
-
+		}
+		
 	    // Schedules a repaint.
 		invalidate();
 	    return true;
@@ -195,7 +302,7 @@ public class Display extends View
 		int position;
     	for(int i = 0; i < _notePositions.size(); i++)
     	{
-    		position = _notePositions.get(i).second / _vertStep;
+    		position = _notePositions.get(i).getM() / _vertStep;
     		if(position < 2)
     		{
     			position = 2;
@@ -204,59 +311,103 @@ public class Display extends View
     		{
     			position = 16;
     		}
-    		switch(position)
+    		//Set bitmap & position
+    		if(_notePositions.get(i).getR() != 1)
     		{
+    			switch(_notePositions.get(i).getR())
+    			{
     			case 2:
-    				_note = BitmapFactory.decodeResource(getResources(), R.drawable.note_bottom);
+    				_note = BitmapFactory.decodeResource(getResources(), R.drawable.note_half);
+    				break;
+    			case 4:
+    				_note = BitmapFactory.decodeResource(getResources(), R.drawable.note_quarter);
+    				break;
+    			case 8:
+    				_note = BitmapFactory.decodeResource(getResources(), R.drawable.note_eighth);
     				break;
     			case 16:
-    				_note = BitmapFactory.decodeResource(getResources(), R.drawable.note_top);
+    				_note = BitmapFactory.decodeResource(getResources(), R.drawable.note_sixteenth);
     				break;
-    			case 3:
-    			case 15:
-    				_note = BitmapFactory.decodeResource(getResources(), R.drawable.note_crossed);
+    			case 32:
+    				_note = BitmapFactory.decodeResource(getResources(), R.drawable.note_thirty_second);
+    				break;
+    			case 64:
+    				_note = BitmapFactory.decodeResource(getResources(), R.drawable.note_sixty_fourth);
     				break;
     			default:
-    				_note = BitmapFactory.decodeResource(getResources(), R.drawable.note);
     				break;
+    			}
     		}
-    		if(_screenPosition == 0 && _notePositions.get(i).first <= _horStep * 12)
+    		else
     		{
-    			_canvas.drawBitmap(_note, _notePositions.get(i).first, _notePositions.get(i).second, null);
+	    		switch(position)
+	    		{
+	    			case 2:
+	    				_note = BitmapFactory.decodeResource(getResources(), R.drawable.note_bottom);
+	    				break;
+	    			case 16:
+	    				_note = BitmapFactory.decodeResource(getResources(), R.drawable.note_top);
+	    				break;
+	    			case 3:
+	    			case 15:
+	    				_note = BitmapFactory.decodeResource(getResources(), R.drawable.note_crossed);
+	    				break;
+	    			default:
+	    				_note = BitmapFactory.decodeResource(getResources(), R.drawable.note);
+	    				break;
+	    		}
     		}
-    		else if(_notePositions.get(i).first > ((_horStep * 2 ) + (_horStep * 5 * _screenPosition )) && _notePositions.get(i).first < (( _horStep * 12 ) + ( _horStep * 5 * _screenPosition )))
+    		int positionY;
+    		if(_notePositions.get(i).getR() != 1)
     		{
-    			_canvas.drawBitmap(_note, _notePositions.get(i).first - ( _horStep * 5 * _screenPosition ), _notePositions.get(i).second, null);
+    			positionY = _notePositions.get(i).getM() - 90;
+    		}
+    		else
+    		{
+    			positionY = _notePositions.get(i).getM();
+    		}
+    		//Drawing
+       		if(_screenPosition == 0 && _notePositions.get(i).getL() <= _horStep * 9)
+    		{
+    			_canvas.drawBitmap(_note, _notePositions.get(i).getL(), positionY, null);
+    		}
+    		else if(_notePositions.get(i).getL() > ((_horStep * 2 ) + (_horStep * 5 * _screenPosition )) && _notePositions.get(i).getL() < (( _horStep * 9 ) + ( _horStep * 5 * _screenPosition )))
+    		{
+    			_canvas.drawBitmap(_note, _notePositions.get(i).getL() - ( _horStep * 5 * _screenPosition ), positionY, null);
     		}
     	}
-    	
-    	//Temporary note draw    
+	}
+	
+	//Temporary note draw    
+	public void temporaryNoteDraw()
+	{
+    	int position;
     	position = _row / _vertStep;
-    	if(position < 2)
-		{
-			position = 2;
-		}
-		if(position > 16)
-		{
-			position = 16;
-		}
-		switch(position)
-		{
-			case 2:
-				_tempNote = BitmapFactory.decodeResource(getResources(), R.drawable.note_bottom_temp);
-				break;
-			case 16:
-				_tempNote = BitmapFactory.decodeResource(getResources(), R.drawable.note_top_temp);
-				break;
-			case 3:
-			case 15:
-				_tempNote = BitmapFactory.decodeResource(getResources(), R.drawable.note_crossed_temp);
-				break;
-			default:
-				_tempNote = BitmapFactory.decodeResource(getResources(), R.drawable.note_temp);
-				break;
-		}
-    	_canvas.drawBitmap(_tempNote, _column, _row, null);
+        if(position < 2)
+    	{
+    		position = 2;
+    	}
+    	if(position > 16)
+    	{
+    		position = 16;
+    	}
+    	switch(position)
+    	{
+    		case 2:
+    			_tempNote = BitmapFactory.decodeResource(getResources(), R.drawable.note_bottom_temp);
+    			break;
+    		case 16:
+    			_tempNote = BitmapFactory.decodeResource(getResources(), R.drawable.note_top_temp);
+    			break;
+    		case 3:
+    		case 15:
+    			_tempNote = BitmapFactory.decodeResource(getResources(), R.drawable.note_crossed_temp);
+    			break;
+    		default:
+    			_tempNote = BitmapFactory.decodeResource(getResources(), R.drawable.note_temp);
+    			break;
+    	}
+        _canvas.drawBitmap(_tempNote, _column, _row, null);  	
 	}
 	
 	//Indicator drawing
@@ -266,11 +417,17 @@ public class Display extends View
 		invalidate();
 	}
 	
+	public void noteChooseMenuDraw()
+	{
+		_canvas.drawBitmap(_noteSelection, _menuX, _menuY, null);
+		invalidate();
+	}
+	
 	//Move indicator
 	public static void moveIndicator(float beatProgress, float currentBeat)
 	{
 		currentBeat++;
-		_indicatorPositionX = 60 + (50 * currentBeat) + (50 * beatProgress);
+		_indicatorPositionX = 60 + (75 * currentBeat) + (75 * beatProgress);
 	}
 	
 	//Resets the indicator's position when the player is stopped
