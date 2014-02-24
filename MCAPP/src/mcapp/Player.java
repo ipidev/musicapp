@@ -6,7 +6,7 @@ import android.util.Log;
 /**
  * Class responsible for handling any sound output as well as progressing
  * through the song and playing its notes. 
- * @author Sean
+ * @author Sean, Shavarsh
  *
  */
 public class Player 
@@ -103,6 +103,15 @@ public class Player
 	public float getBeatProgress()
 	{
 		return _nextBeatCount / _secondsPerBeat;
+	}
+	
+	/**
+	 * Gets the player's current beat. Used for playing animation.
+	 * @return The current beat the player is at.
+	 */
+	public float getCurrentBeat()
+	{
+		return _currentBeat;
 	}
 	
 	/**

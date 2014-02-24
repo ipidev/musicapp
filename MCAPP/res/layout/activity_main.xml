@@ -8,8 +8,8 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".MainActivity" >
     
-    <mcapp.ShowImage
-        android:id="@+id/editor"
+    <mcapp.Display
+        android:id="@+id/display"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 
@@ -61,5 +61,32 @@
         android:layout_toRightOf="@+id/stopButton"
         android:max="250"
         android:progress="120" />
+        
+	<Button
+		android:id="@+id/prevScore"
+		android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop = "true"
+        android:layout_alignParentLeft = "true"
+        android:text = "@string/button_previous"
+        android:onClick = "onBackButton" />
+        
+	<Button
+		android:id="@+id/nextScore"
+		android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop = "true"
+        android:layout_alignParentRight = "true"
+        android:text = "@string/button_next"
+        android:onClick = "onNextButton" />
+        
+	<Button
+		android:id="@+id/clear"
+		android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop = "true"
+        android:layout_toLeftOf = "@id/nextScore"
+        android:text = "@string/button_clear"
+        android:onClick = "onClearButton" />
 
 </RelativeLayout>

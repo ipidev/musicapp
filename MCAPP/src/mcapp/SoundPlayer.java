@@ -115,10 +115,10 @@ public class SoundPlayer
 	 */
 	public int load(String path)
 	{
-		Log.d("MCAPP", "Loading path: " + path);
+		//Log.d("MCAPP", "Loading path: " + path);
 		int id = _soundPool.load(path, 1);
 		_loadedSamples.add(id);
-		Log.d("MCAPP", "New sound ID: " + id);
+		//Log.d("MCAPP", "New sound ID: " + id);
 		return id;
 	}
 	

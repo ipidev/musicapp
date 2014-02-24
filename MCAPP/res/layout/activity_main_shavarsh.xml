@@ -4,7 +4,7 @@
     android:paddingLeft="16dp"
     android:paddingRight="16dp" >
 
-    <com.example.myfirstapp.showImage
+    <com.example.myfirstapp.Display
         android:id="@+id/editor"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" /> 
