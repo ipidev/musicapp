@@ -22,6 +22,10 @@ import android.widget.SeekBar.OnSeekBarChangeListener;
 
 public class MainActivity extends Activity
 {
+	//Beat tracker
+	int _beat = -1;
+	int _multiplier = 0;
+	
 	/**
 	 * Loads, plays and unloads sounds.
 	 */
@@ -78,6 +82,8 @@ public class MainActivity extends Activity
 		_timer = new Timer();
 		_timer.scheduleAtFixedRate(new Updater(this), 0, 100);
 		
+		
+		
 		//Set up seek bar.
 		SeekBar bpmBar = (SeekBar)findViewById(R.id.bpmBar);
 		bpmBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener()
@@ -117,15 +123,19 @@ public class MainActivity extends Activity
 	 */
 	public void run()
 	{
-		float beat = -1;
 		_player.update(0.1f);
-		beat = _player.getCurrentBeat();
-		/*if((int)_player.getCurrentBeat() % 10 == 9)
-		{
-			_display.scoreNext();
-			beat = _player.getCurrentBeat() - 4;
-		}*/	
-		_display.moveIndicator(_player.getBeatProgress(), beat);
+		//Calculations for the indicator position.
+		if(_beat + 5 * _multiplier != (int)_player.getCurrentBeat())
+		{			
+			_beat = (int)_player.getCurrentBeat() - 5 * _multiplier;
+			if(_beat % 6 == 0 && _beat != 0)
+			{				
+				_display.scoreNext();
+				_beat -= 5;
+				_multiplier++;				
+			}
+		}
+		_display.moveIndicator(_beat, _player.getBeatProgress());
 	}
 	
 	/**
@@ -160,10 +170,12 @@ public class MainActivity extends Activity
 	{
 		//Stop.
 		_player.stop();
+		_beat = -1;
+		_multiplier = 0;
+		_display.resetIndicatorPosition(60.0f);
 		
 		Button button = (Button)findViewById(R.id.playButton);
-		button.setText(R.string.button_play);
-		_display.resetIndicatorPosition(60.0f);
+		button.setText(R.string.button_play);		
 	}
 	
 	/**
@@ -234,6 +246,11 @@ public class MainActivity extends Activity
 	public void onClearButton(View view)
 	{
 		_display.clear();
+	}
+	
+	public void onChangeNoteLengthButton(View view)
+	{
+		_display.noteLengthMenu();
 	}
 }
 

@@ -70,7 +70,9 @@ public class Pair<L, M, R>
 		{
 			return false;
 		}
-		if (r == null) 
+		//This is done so Pairs are only compared to their L and M values.
+		//This makes finding a note with a length different from 1 possible (since the length of the note is stored in the "pair"'s R value)
+		/*if (r == null) 
 		{
 			if (other.r != null) 
 			{
@@ -81,6 +83,7 @@ public class Pair<L, M, R>
 		{
 			return false;
 		}
+		*/
 		return true;
 	}
 	
