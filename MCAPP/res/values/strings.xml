@@ -17,4 +17,5 @@
 	<string name="button_previous">Back</string>
 	<string name="button_next">Next</string>
 	<string name="button_clear">Clear</string>
+	<string name="button_changeNoteLength">Change length</string>
 </resources>
