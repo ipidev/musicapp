@@ -1,5 +1,7 @@
 package mcapp;
 
+import java.util.ArrayList;
+
 import android.util.Log;
 
 
@@ -11,6 +13,14 @@ import android.util.Log;
  */
 public class Player 
 {
+	/**
+	 * Interface used for passing a callback function for when the song reaches the end.
+	 */
+	public interface EndOfSongCallback
+	{
+		public void callback();
+	}
+	
 	/**
 	 * Holds the song data.
 	 */
@@ -48,6 +58,26 @@ public class Player
 	 */
 	private boolean _isPlaying = false;
 	
+	/**
+	 * Holds callback function for when a song reaches the end.
+	 */
+	private EndOfSongCallback _callback = null;
+	
+	/**
+	 * Amount of time that each note has been playing for.
+	 */
+	private ArrayList<Float> _noteTime = new ArrayList<Float>();
+	
+	/**
+	 * Amount of time set for each note that is currently playing.
+	 */
+	private ArrayList<Float> _noteDuration = new ArrayList<Float>();
+	
+	/**
+	 * The playback indices of each playing note.
+	 */
+	private ArrayList<Integer> _noteIndices = new ArrayList<Integer>();
+	
 	
 	/**
 	 * Constructs an editor object.
@@ -63,9 +93,10 @@ public class Player
 	/**
 	 * Starts playing or resumes the song.
 	 */
-	public void play()
+	public void play(EndOfSongCallback callback)
 	{
 		_isPlaying = true;
+		_callback = callback;
 	}
 	
 	/**
@@ -144,7 +175,10 @@ public class Player
 				
 				//If the player has reached the end of the score, stop.
 				if (_currentBeat >= Global.BEATS_PER_SCORE)
+				{
 					stop();
+					_callback.callback();
+				}
 				else
 				{
 					_nextBeatCount -= _secondsPerBeat;
@@ -158,12 +192,61 @@ public class Player
 						{
 							Log.d("MCAPP", "Using sample: " + (Global.useRecordedSound ? "Recorded" : "Piano"));
 							if (!beat.isEmpty(i))
-								_soundPlayer.play(Global.useRecordedSound ? Global.recordedID : Global.pianoID,
+							{
+								int j = _soundPlayer.play(Global.useRecordedSound ? Global.recordedID : Global.pianoID,
 											      beat.getNote(i).getPitch());
+								addNote(j);
+							}
 						}
 					}
 				}
 			}
+		}
+		
+		updateNotePlaying(deltaTime);
+	}
+	
+	/**
+	 * Plays a new note and keeps track of it.
+	 * @param sampleIndex The index of the played sample.
+	 */
+	public void addNote(int sampleIndex)
+	{
+		_noteTime.add(0.0f);
+		_noteDuration.add(0.2f);
+		_noteIndices.add(sampleIndex);
+	}
+	
+	/**
+	 * Stops notes if they've been playing for longer than their designated time.
+	 */
+	public void updateNotePlaying(float deltaTime)
+	{
+		//Collection of array indices to delete.
+		ArrayList<Integer> deletedIndices = new ArrayList<Integer>();
+		
+		for (int i = 0; i < _noteTime.size(); ++i)
+		{
+			float time = _noteTime.get(i) + deltaTime;
+			
+			if (time >= _noteDuration.get(i))
+			{
+				//Remove note.
+				deletedIndices.add(i);
+				_soundPlayer.stop(_noteIndices.get(i));
+			}
+			else
+			{
+				_noteTime.set(i, time);
+			}
+		}
+		
+		//Delete all notes set to delete.
+		for (int i : deletedIndices)
+		{
+			_noteTime.remove(i);
+			_noteDuration.remove(i);
+			_noteIndices.remove(i);
 		}
 	}
 }

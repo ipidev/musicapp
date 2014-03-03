@@ -18,6 +18,11 @@ public class Global
 	public static final int BEATS_PER_SCORE = 16;
 	
 	/**
+	 * Maximum length of recorded sounds in seconds.
+	 */
+	public static final float MAX_RECORDING_LENGTH = 2.0f;
+	
+	/**
 	 * The ID of the piano sample. Very very temporary.
 	 */
 	public static int pianoID = 0;

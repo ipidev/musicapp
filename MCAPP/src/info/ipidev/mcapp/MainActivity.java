@@ -3,15 +3,14 @@ package info.ipidev.mcapp;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import mcapp.Display;
 import mcapp.Global;
 import mcapp.Player;
-import mcapp.Display;
 import mcapp.Song;
 import mcapp.SoundPlayer;
 import mcapp.SoundRecorder;
 import android.app.Activity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
@@ -64,6 +63,9 @@ public class MainActivity extends Activity
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		
+		//Hide the action bar.
+		//Check https://developer.android.com/tools/support-library/setup.html#libs-with-res
+		
 		//Set up sound player and load the sample.
 		_soundPlayer = new SoundPlayer(this);
 		Global.pianoID = _soundPlayer.load(R.raw.piano);
@@ -81,8 +83,6 @@ public class MainActivity extends Activity
 		//Set up timer. Replace me.
 		_timer = new Timer();
 		_timer.scheduleAtFixedRate(new Updater(this), 0, 100);
-		
-		
 		
 		//Set up seek bar.
 		SeekBar bpmBar = (SeekBar)findViewById(R.id.bpmBar);
@@ -124,6 +124,9 @@ public class MainActivity extends Activity
 	public void run()
 	{
 		_player.update(0.1f);
+		
+		_soundRecorder.update(0.1f);
+		
 		//Calculations for the indicator position.
 		if(_beat + 5 * _multiplier != (int)_player.getCurrentBeat())
 		{			
@@ -146,8 +149,11 @@ public class MainActivity extends Activity
 	{
 		if (!_player.isPlaying() && !_soundRecorder.isRecording())
 		{
+			//Make callback function object.
+			EndOfSongCallback endOfSong = new EndOfSongCallback(this);
+			
 			//Start playing.
-			_player.play();
+			_player.play(endOfSong);
 			
 			Button button = (Button)view;
 			button.setText(R.string.button_pause);
@@ -168,14 +174,41 @@ public class MainActivity extends Activity
 	 */
 	public void onStopButton(View view)
 	{
+		sharedStopStuff();
+		
+		Button button = (Button)findViewById(R.id.playButton);
+		button.setText(R.string.button_play);		
+	}
+	
+	/**
+	 * Callback function for when the song ends.
+	 */
+	public void endOfSong()
+	{
+		sharedStopStuff();
+		
+		//Need to jump back to the UI thread in order to edit the button.
+		runOnUiThread(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				Button button = (Button)findViewById(R.id.playButton);
+				button.setText(R.string.button_play);
+			}
+		});
+	}
+	
+	/**
+	 * Stuff shared by both the stop button function and the end of song callback.
+	 */
+	public void sharedStopStuff()
+	{
 		//Stop.
 		_player.stop();
 		_beat = -1;
 		_multiplier = 0;
 		_display.resetIndicatorPosition(60.0f);
-		
-		Button button = (Button)findViewById(R.id.playButton);
-		button.setText(R.string.button_play);		
 	}
 	
 	/**
@@ -186,8 +219,11 @@ public class MainActivity extends Activity
 	{
 		if (!_soundRecorder.isRecording())
 		{
+			//Make callback function object.
+			StopRecording stopRecording = new StopRecording(this);
+			
 			//Start recording.
-			_soundRecorder.start("temp");
+			_soundRecorder.start("temp", stopRecording);
 			_player.stop();
 			
 			Button button = (Button)view;
@@ -204,14 +240,30 @@ public class MainActivity extends Activity
 		{
 			//Stop recording.
 			_soundRecorder.stop();
-			
-			Button button = (Button)view;
-			button.setText(R.string.button_startRecording);
-			
-			//Load the new sample.
-			Global.recordedID = _soundPlayer.load(_soundRecorder.getFilePath());
+			stopRecording();
 		}
 	}
+	
+	/**
+	 * Changes the record button and stuff.
+	 */
+	public void stopRecording()
+	{
+		//Need to jump back to the UI thread in order to edit the button.
+		runOnUiThread(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				Button button = (Button)findViewById(R.id.recordButton);
+				button.setText(R.string.button_startRecording);
+			}
+		});
+		
+		//Load the new sample.
+		Global.recordedID = _soundPlayer.load(_soundRecorder.getFilePath());
+	}
+	
 	
 	/**
 	 * Event called when the use recorded sound checkbox is clicked.
@@ -272,5 +324,41 @@ class Updater extends TimerTask
 	public void run()
 	{
 		_mainActivity.run();
+	}
+}
+
+/**
+*	Callback class for finished recording.
+*/
+class StopRecording implements SoundRecorder.SoundRecorderCallback
+{
+	MainActivity _mainActivity;
+	
+	public StopRecording(MainActivity mainActivity)
+	{
+		_mainActivity = mainActivity;
+	}
+	
+	public void callback()
+	{
+		_mainActivity.stopRecording();
+	}
+}
+
+/**
+* Callback class for end of song.
+*/
+class EndOfSongCallback implements Player.EndOfSongCallback
+{
+	MainActivity _mainActivity;
+	
+	public EndOfSongCallback(MainActivity mainActivity)
+	{
+		_mainActivity = mainActivity;
+	}
+	
+	public void callback()
+	{
+		_mainActivity.endOfSong();
 	}
 }
