@@ -47,4 +47,22 @@ public class Song
 	{
 		return tScore;
 	}
+	
+	/**
+	 * Accessor for name variable
+	 * @return The Name Variable
+	 */
+	public String getName()
+	{
+		return _name;
+	}
+	
+	/**
+	 * Accessor for description variable
+	 * @return The Description Variable
+	 */
+	public String getDescription()
+	{
+		return _description;
+	}
 }
