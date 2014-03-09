@@ -8,7 +8,6 @@ import android.content.Context;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.media.SoundPool.OnLoadCompleteListener;
-import android.util.Log;
 
 /**
  * Class that is responsible for loading and maintaining sounds and playing

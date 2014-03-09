@@ -125,17 +125,17 @@ public class MainActivity extends Activity
 	{
 		_player.update(0.1f);
 		//Calculations for the indicator position.
-		if(_beat + 5 * _multiplier != (int)_player.getCurrentBeat())
+		if(_beat + 4 * _multiplier != (int)_player.getCurrentBeat())
 		{			
-			_beat = (int)_player.getCurrentBeat() - 5 * _multiplier;
-			if(_beat % 6 == 0 && _beat != 0)
+			_beat = (int)_player.getCurrentBeat() - 4 * _multiplier;
+			if(_beat % 5 == 0 && _beat != 0)
 			{				
-				_display.scoreNext();
-				_beat -= 5;
-				_multiplier++;				
+				_beat -= 4;
+				_multiplier++;
+				Display.scoreNext();
 			}
 		}
-		_display.moveIndicator(_beat, _player.getBeatProgress());
+		Display.passPlayProgress(_beat, _player.getBeatProgress());
 	}
 	
 	/**
@@ -148,6 +148,7 @@ public class MainActivity extends Activity
 		{
 			//Start playing.
 			_player.play();
+			Display.passPlayerStatus(true);
 			
 			Button button = (Button)view;
 			button.setText(R.string.button_pause);
@@ -172,7 +173,8 @@ public class MainActivity extends Activity
 		_player.stop();
 		_beat = -1;
 		_multiplier = 0;
-		_display.resetIndicatorPosition(60.0f);
+		Display.passPlayerStatus(false);
+		Display.resetIndicatorPosition();
 		
 		Button button = (Button)findViewById(R.id.playButton);
 		button.setText(R.string.button_play);		
@@ -231,7 +233,7 @@ public class MainActivity extends Activity
 	 */
 	public void onBackButton(View view)
 	{
-		_display.scoreBack();
+		Display.scoreBack();
 	}
 	
 	/**
@@ -240,17 +242,25 @@ public class MainActivity extends Activity
 	 */
 	public void onNextButton(View view)
 	{
-		_display.scoreNext();
+		Display.scoreNext();
 	}
 	
+	/**
+	 * Event called when the Clear button is pressed
+	 * @param view The view that was clicked.
+	 */
 	public void onClearButton(View view)
 	{
-		_display.clear();
+		Display.clear();
 	}
 	
+	/**
+	 * Event called when the Change length button is pressed
+	 * @param view The view that was clicked.
+	 */
 	public void onChangeNoteLengthButton(View view)
 	{
-		_display.noteLengthMenu();
+		Display.noteLengthMenu();
 	}
 }
 
