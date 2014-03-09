@@ -9,8 +9,10 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.ColorFilter;
 import android.graphics.Paint;
-import android.graphics.Rect;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -30,11 +32,9 @@ public class Display extends View
 	
 	Bitmap _score = BitmapFactory.decodeResource(getResources(), R.drawable.score);
 	Bitmap _note = BitmapFactory.decodeResource(getResources(), R.drawable.note);
-	Bitmap _tempNote = BitmapFactory.decodeResource(getResources(), R.drawable.note_temp);
+	Bitmap _tempNote = BitmapFactory.decodeResource(getResources(), R.drawable.note);
 	Bitmap _indicator = BitmapFactory.decodeResource(getResources(), R.drawable.indicator);
 	Bitmap _noteSelection = BitmapFactory.decodeResource(getResources(), R.drawable.note_selection);
-			
-	Rect _bottombar = new Rect(0, 335, 760, 405);
 	
 	int _column = 1000;
 	int _row = 1000;
@@ -48,13 +48,15 @@ public class Display extends View
 	//the indicator of the "screen" currently viewed
 	static int _screenPosition = 0;
 	//Flags for additional menu
-	boolean _isNoteChoosingActive = false;
-	boolean _isMenuActive = false;
+	static boolean _isNoteChoosingActive = false;
+	static boolean _isMenuActive = false;
 	//Menu position
 	float _menuX = 130;
 	float _menuY = 100;
 	//Targeted note
-	int _noteToChange;
+	static int _selectedNote = -1;
+	//Flag for deletion. This allows the note to be marked 1st and deleted 2nd.
+	boolean _toDelete = false;
 	
 	/**
 	 * Reference to the current song.
@@ -109,10 +111,6 @@ public class Display extends View
 		//Initialisation
 		_canvas = canvas;
     	
-		//Bottom bar draw
-    	_paint.setColor(Color.BLUE);    	    	
-    	canvas.drawRect(_bottombar, _paint);    	
-    	
     	//Score draw
     	canvas.drawBitmap(_score, 0, 30, null);
     	
@@ -125,8 +123,16 @@ public class Display extends View
     	{
     		noteChooseMenuDraw();
     	}    	
-    	indicatorDraw();
+    	if(_screenPosition == 0)
+    	{
+    		indicatorDraw();
+    	}
+    	else if(_screenPosition != 0 && _indicatorPositionX != 60)
+    	{
+    		indicatorDraw();
+    	}
     	changeScore();
+    	invalidate();
     }
     
 	/**
@@ -177,50 +183,13 @@ public class Display extends View
 		//Release event
 		if(event.getAction() == MotionEvent.ACTION_UP)
 		{	
-			_eventX = event.getX();
-			_eventY = event.getY();
-			if(_eventX > _menuX && _eventX < _menuX + _noteSelection.getWidth()
-					&& _eventY > _menuY && _eventY < _menuY + _noteSelection.getHeight()
-					&& _isNoteChoosingActive && _isMenuActive)
-			{
-				int length = 1;
-				switch(( (int)_eventX - (int)_menuX ) / 83) // 83 needs to be stored somewhere! Fix when addressing scaling
-				{
-					case 0:
-						length = 2;
-						break;
-					case 1:
-						length = 4;
-						break;
-					case 2:
-						length = 8;
-						break;
-					case 3:
-						length = 16;
-						break;
-					case 4:
-						length = 32;
-						break;
-					case 5:
-						length = 64;
-						break;
-					default:
-						break;
-				}
-				_notePositions.get(_noteToChange).setR(length);
-				_isMenuActive = false;
-			}
-			else
-			{
-				_isMenuActive = false;
-			}
-		    
-			 //Note choosing menu initial check logic
+			//_eventX = event.getX();
+			//_eventY = event.getY();
+			
+			//Note selection initial logic
 			if(!_isNoteChoosingActive)
 			{
-				_eventX = event.getX();
-			    _eventY = event.getY();
-			    vertPosition =  ( (int)_eventY - upperDistance ) / _vertStep;
+			    /*vertPosition =  ( (int)_eventY - upperDistance ) / _vertStep;
 			    if(vertPosition < 1)
 				{
 			    	vertPosition = 1;
@@ -240,36 +209,35 @@ public class Display extends View
 				}
 				int tempColumn = (int)(leftDistance + ( _horStep * horPosition ) );
 			    int tempRow = (int)(upperDistance + ( _vertStep * vertPosition ) );
-			    
+			    */
 			    //Create a temporary pair
-			    tempPair = new Pair<Integer, Integer, Integer>(tempColumn + ( _horStep * 5 * _screenPosition ), tempRow, 1);
-			    
+			    tempPair = new Pair<Integer, Integer, Integer>(_column + ( _horStep * 5 * _screenPosition ), _row, 1);
 			    //Check if there's a note on that location	    
 			    if(_notePositions.contains(tempPair))
 			    {
-			    	_isNoteChoosingActive = true;
-			    	_isMenuActive = true;
-			    	_noteToChange = _notePositions.indexOf(tempPair);
-			    }
-			    else
-			    {
-			    	_isMenuActive = false;
-			    	
-			    }
-			}
+			    	if(_selectedNote == _notePositions.indexOf(tempPair))
+			    	{
+			    		_toDelete = true;				    
+			    	}
+			    	else
+			    	{
+			    		_selectedNote = _notePositions.indexOf(tempPair);
+			    	}			    	
+			    }			    		
 			
-		    //Draw a note if the note choosing menu is not active
-			if(!_isNoteChoosingActive)
-			{	
-				//Create a temporary pair
-			    tempPair = new Pair<Integer, Integer, Integer>(_column + ( _horStep * 5 * _screenPosition ), _row, 1);
+			    //Draw note logic, if the note choosing menu is not active			    
+			    //Check if there's already a note there	
 			    
-			    //Check if there's already a note there		    
 			    if(_notePositions.contains(tempPair))
 			    {
-			    	_notePositions.remove(tempPair);
-			    	_song.getScore(0).removeNote(horPosition - 1 + ( 5 * _screenPosition),
-			    								 GRID_TO_PITCH[vertPosition - 1]);
+			    	if(_toDelete)
+			    	{
+				    	_notePositions.remove(tempPair);
+				    	_song.getScore(0).removeNote(horPosition - 1 + ( 5 * _screenPosition),
+				    								 GRID_TO_PITCH[vertPosition - 1]);
+				    	_selectedNote = -1;
+				    	_toDelete = false;
+			    	}
 			    }
 			    else
 			    {
@@ -279,20 +247,51 @@ public class Display extends View
 							 					  0))
 			    		Log.d("PLAYA", "NOTE ADDING SUCCESSFUL!!!");
 			    }			    
-			}
-			
-		    if(!_isMenuActive)
-		    {
-		    	_isNoteChoosingActive = false;
-		    }
-		    
+			}		
+			//Choose note length if menu is active
+			else
+			{
+				int correctX = (int)(_eventX + 150);
+				if(correctX > _menuX && correctX < _menuX + _noteSelection.getWidth()
+						&& _eventY > _menuY && _eventY < _menuY + _noteSelection.getHeight())
+				{
+					int length = 1;					
+					switch((correctX - (int)_menuX ) / 83) // 83(width of non-full notes) needs to be stored somewhere! Fix when addressing scaling
+					{
+						case 0:
+							length = 2;
+							break;
+						case 1:
+							length = 4;
+							break;
+						case 2:
+							length = 8;
+							break;
+						case 3:
+							length = 16;
+							break;
+						case 4:
+							length = 32;
+							break;
+						case 5:
+							length = 64;
+							break;
+						default:
+							break;
+					}
+					_notePositions.get(_selectedNote).setR(length);
+					_isNoteChoosingActive = false;
+				}
+				else
+				{
+					_isNoteChoosingActive = false;
+				}		    
+			}			 
 		   
 			_column = 1000;
 		    _row = 1000;
 		}
 		
-	    // Schedules a repaint.
-		invalidate();
 	    return true;
 	}
 	
@@ -367,13 +366,22 @@ public class Display extends View
     			positionY = _notePositions.get(i).getM();
     		}
     		//Drawing
+    		if(i == _selectedNote)
+    		{
+    			ColorFilter filter = new PorterDuffColorFilter(Color.RED, PorterDuff.Mode.SRC_IN);
+    	    	_paint.setColorFilter(filter);
+    		}
+    		else
+    		{
+    			_paint = new Paint();
+    		}
        		if(_screenPosition == 0 && _notePositions.get(i).getL() <= _horStep * 9)
     		{
-    			_canvas.drawBitmap(_note, _notePositions.get(i).getL(), positionY, null);
+    			_canvas.drawBitmap(_note, _notePositions.get(i).getL(), positionY, _paint);
     		}
     		else if(_notePositions.get(i).getL() > ((_horStep * 2 ) + (_horStep * 5 * _screenPosition )) && _notePositions.get(i).getL() < (( _horStep * 9 ) + ( _horStep * 5 * _screenPosition )))
     		{
-    			_canvas.drawBitmap(_note, _notePositions.get(i).getL() - ( _horStep * 5 * _screenPosition ), positionY, null);
+    			_canvas.drawBitmap(_note, _notePositions.get(i).getL() - ( _horStep * 5 * _screenPosition ), positionY, _paint);
     		}
     	}
 	}
@@ -394,40 +402,41 @@ public class Display extends View
     	switch(position)
     	{
     		case 2:
-    			_tempNote = BitmapFactory.decodeResource(getResources(), R.drawable.note_bottom_temp);
+    			_tempNote = BitmapFactory.decodeResource(getResources(), R.drawable.note_bottom);
     			break;
     		case 16:
-    			_tempNote = BitmapFactory.decodeResource(getResources(), R.drawable.note_top_temp);
+    			_tempNote = BitmapFactory.decodeResource(getResources(), R.drawable.note_top);
     			break;
     		case 3:
     		case 15:
-    			_tempNote = BitmapFactory.decodeResource(getResources(), R.drawable.note_crossed_temp);
+    			_tempNote = BitmapFactory.decodeResource(getResources(), R.drawable.note_crossed);
     			break;
     		default:
-    			_tempNote = BitmapFactory.decodeResource(getResources(), R.drawable.note_temp);
+    			_tempNote = BitmapFactory.decodeResource(getResources(), R.drawable.note);
     			break;
     	}
-        _canvas.drawBitmap(_tempNote, _column, _row, null);  	
+    	ColorFilter filter = new PorterDuffColorFilter(Color.GREEN, PorterDuff.Mode.SRC_IN);
+    	_paint.setColorFilter(filter);
+        _canvas.drawBitmap(_tempNote, _column, _row, _paint);  	
 	}
 	
 	//Indicator drawing
 	public void indicatorDraw()
 	{
 		_canvas.drawBitmap(_indicator, _indicatorPositionX, _indicatorPositionY, null);
-		invalidate();
 	}
 	
+	//Note choosing menu drawing
 	public void noteChooseMenuDraw()
 	{
 		_canvas.drawBitmap(_noteSelection, _menuX, _menuY, null);
-		invalidate();
 	}
 	
 	//Move indicator
-	public static void moveIndicator(float beatProgress, float currentBeat)
+	public static void moveIndicator(float currentBeat, float beatProgress)
 	{
 		currentBeat++;
-		_indicatorPositionX = 60 + (75 * currentBeat) + (75 * beatProgress);
+		_indicatorPositionX = 60 + (75 * currentBeat) + (75 * beatProgress); //75 = _horStep. Has to be fixed with scaling.
 	}
 	
 	//Resets the indicator's position when the player is stopped
@@ -446,6 +455,14 @@ public class Display extends View
 	public static void scoreNext()
 	{
 		_screenPosition++;
+	}
+	
+	public static void noteLengthMenu()
+	{
+		if(_selectedNote != -1)
+		{
+			_isNoteChoosingActive = !_isNoteChoosingActive;
+		}
 	}
 	
 	//Changes the score bitmap
