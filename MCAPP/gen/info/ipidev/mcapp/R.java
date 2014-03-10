@@ -50,6 +50,8 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int score_transition=0x7f02000f;
     }
     public static final class id {
+        public static final int action_export=0x7f0a0013;
+        public static final int action_import=0x7f0a0012;
         public static final int action_settings=0x7f0a0011;
         public static final int bpmBar=0x7f0a0008;
         public static final int button_play=0x7f0a000e;
@@ -81,25 +83,27 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int piano=0x7f040000;
     }
     public static final class string {
+        public static final int action_export=0x7f070005;
+        public static final int action_import=0x7f070004;
+        /**  Sound test activity. 
+         */
         public static final int action_settings=0x7f070003;
         /**  Fullscreen activity. 
          */
         public static final int app_name=0x7f070000;
-        public static final int button_changeNoteLength=0x7f07000e;
-        public static final int button_clear=0x7f07000d;
-        public static final int button_next=0x7f07000c;
-        public static final int button_pause=0x7f070009;
-        public static final int button_play=0x7f070008;
-        public static final int button_previous=0x7f07000b;
-        public static final int button_startRecording=0x7f070006;
-        public static final int button_stop=0x7f07000a;
-        public static final int button_stopRecording=0x7f070007;
-        public static final int checkBox_useRecording=0x7f070005;
+        public static final int button_changeNoteLength=0x7f070010;
+        public static final int button_clear=0x7f07000f;
+        public static final int button_next=0x7f07000e;
+        public static final int button_pause=0x7f07000b;
+        public static final int button_play=0x7f07000a;
+        public static final int button_previous=0x7f07000d;
+        public static final int button_startRecording=0x7f070008;
+        public static final int button_stop=0x7f07000c;
+        public static final int button_stopRecording=0x7f070009;
+        public static final int checkBox_useRecording=0x7f070007;
         public static final int dummy_button=0x7f070001;
         public static final int dummy_content=0x7f070002;
-        /**  Sound test activity. 
-         */
-        public static final int title_activity_main=0x7f070004;
+        public static final int title_activity_main=0x7f070006;
     }
     public static final class style {
         /** 
@@ -107,12 +111,6 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         by AppBaseTheme from res/values-vXX/styles.xml on newer devices.
 
     
-
-            Theme customizations available in newer API levels can go in
-            res/values-vXX/styles.xml, while customizations related to
-            backward-compatibility can go here.
-
-        
 
         Base application theme for API 11+. This theme completely replaces
         AppBaseTheme from res/values/styles.xml on API 11+ devices.
