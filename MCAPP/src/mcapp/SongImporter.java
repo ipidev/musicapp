@@ -9,7 +9,7 @@ import android.os.Environment;
 
 /**
  * Imports songs.
- * @author Sean
+ * @author Josh
  *
  */
 public class SongImporter

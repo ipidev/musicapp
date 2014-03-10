@@ -8,7 +8,7 @@ import android.os.Environment;
 
 /**
  * Exports songs.
- * @author Sean
+ * @author Josh
  *
  */
 public class SongExporter
