@@ -156,10 +156,14 @@ public class Player
 					{
 						for (int i = 0; i < Global.MAX_POLYPHONY; ++i)
 						{
-							Log.d("MCAPP", "Using sample: " + (Global.useRecordedSound ? "Recorded" : "Piano"));
 							if (!beat.isEmpty(i))
+							{
+								int pitch = beat.getNote(i).getPitch();
+								int accidental = _song.getScore(_currentScore).getKeySignature().getAccidental(pitch);
+								
 								_soundPlayer.play(Global.useRecordedSound ? Global.recordedID : Global.pianoID,
-											      beat.getNote(i).getPitch());
+											      Global.GRID_TO_PITCH[pitch] + accidental);
+							}
 						}
 					}
 				}

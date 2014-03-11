@@ -105,16 +105,6 @@ public class Display extends View
 	 */
 	private static Song _song;
 	
-	/**
-	 * Allows for conversion from the grid-based placing of notes to the pitches
-	 * of the notes in the song.
-	 */
-	private static final int[] GRID_TO_PITCH =
-	{
-		/* A5 */ 9, 7, 5, 4, 2, 0, -1,
-		/* A4 */ -3, -5, -7, -8, -10, -12, -13,
-		/* A3 */ -15
-	};
 	
 	//Getter for the _screenPosition
 	public static int getScreen()
@@ -261,8 +251,8 @@ public class Display extends View
 			    	if(_toDelete)
 			    	{
 				    	_notePositions.remove(tempPair);
-				    	_song.getScore(0).removeNote(horPosition - 1 + ( 4 * _screenPosition),
-				    								 GRID_TO_PITCH[vertPosition - 1]);
+				    	_song.getScore(0).removeNote(horPosition - 1 + (4 * _screenPosition),
+				    								 vertPosition - 1);
 				    	_selectedNote = -1;
 				    	_toDelete = false;
 			    	}
@@ -270,10 +260,8 @@ public class Display extends View
 			    else
 			    {
 			    	_notePositions.add(tempPair);		 
-			    	if (_song.getScore(0).addNote(horPosition - 1 + ( 4 * _screenPosition),
-							 					  GRID_TO_PITCH[vertPosition - 1],
-							 					  0))
-			    		Log.d("PLAYA", "NOTE ADDING SUCCESSFUL!!!");
+			    	_song.getScore(0).addNote(horPosition - 1 + (4 * _screenPosition),
+			    							  vertPosition - 1, 0);
 			    }			    
 			}		
 			//Choose note length if menu is active

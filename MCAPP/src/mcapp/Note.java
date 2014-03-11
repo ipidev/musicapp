@@ -36,7 +36,8 @@ public class Note
 	
 	/**
 	 * Accessor for the note's pitch.
-	 * @return The number of semitones above/below the sample's base note.
+	 * @return The vertical index of the note. This does not define its actual
+	 * pitch!!
 	 */
 	public int getPitch()
 	{

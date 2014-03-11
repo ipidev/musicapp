@@ -9,6 +9,8 @@ package mcapp;
 public class Score 
 {
 	Beat[] _beats;
+	
+	private KeySignature _keySignature;
 
 	/**
 	 * Default Constructor
@@ -16,6 +18,7 @@ public class Score
 	public Score()
 	{
 		_beats = new Beat[Global.BEATS_PER_SCORE];
+		_keySignature = new KeySignature();
 	}
 
 	/**
@@ -24,7 +27,8 @@ public class Score
 	 * */
 	public Score(Beat[] beats)
 	{
-		_beats = new Beat[Global.BEATS_PER_SCORE];
+		//Delegate ctor.
+		this();
 	}
 
 	/**
@@ -77,5 +81,14 @@ public class Score
 		{
 			_beats[i] = null;
 		}
+	}
+	
+	/**
+	 * Key signature accessor.
+	 * @return The score's key signature.
+	 */
+	public KeySignature getKeySignature()
+	{
+		return _keySignature;
 	}
 }

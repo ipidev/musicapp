@@ -18,6 +18,17 @@ public class Global
 	public static final int BEATS_PER_SCORE = 16;
 	
 	/**
+	 * Allows for conversion from the grid-based placing of notes to the pitches
+	 * of the notes in the song.
+	 */
+	public static final int[] GRID_TO_PITCH =
+	{
+		/* B5 */ 11, 9, 7, 5, 4, 2, 0,
+		/* B4 */ -1, -3, -5, -7, -8, -10, -12, 
+		/* B3 */ -13,
+	};
+	
+	/**
 	 * The ID of the piano sample. Very very temporary.
 	 */
 	public static int pianoID = 0;
