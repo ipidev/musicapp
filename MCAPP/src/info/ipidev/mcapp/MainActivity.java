@@ -5,6 +5,7 @@ import java.util.TimerTask;
 
 import mcapp.Display;
 import mcapp.Global;
+import mcapp.KeySignature;
 import mcapp.Player;
 import mcapp.Song;
 import mcapp.SoundPlayer;
@@ -51,11 +52,6 @@ public class MainActivity extends Activity
 	private Song _song = null;
 	
 	/**
-	 * The song editor view. Give this a better name in the future (like Display)
-	 */
-	private Display _display = null;
-	
-	/**
 	 * Responsible for recording and saving new sounds.
 	 */
 	private SoundRecorder _soundRecorder = null;
@@ -76,7 +72,6 @@ public class MainActivity extends Activity
 		_player = new Player(_song, _soundPlayer);
 		_player.setBpm(120);
 		
-		_display = (Display)findViewById(R.id.display);
 		Display.setSong(_song);
 		
 		_soundRecorder = new SoundRecorder();
@@ -276,8 +271,41 @@ public class MainActivity extends Activity
 			{
 				if(!(which == 1 || which == 9))
 				{
-					//do something
 					Display.setSignature(which);
+					
+					//Big ugly switch statement to set the key signature.
+					int root;
+					int key = KeySignature.KEY_MAJOR;
+					
+					switch (which)
+					{
+					case 0:
+						root = KeySignature.ROOT_C;
+						break;
+					case 2:
+						root = KeySignature.ROOT_G;
+						break;
+					case 3:
+						root = KeySignature.ROOT_D;
+						break;
+					case 4:
+						root = KeySignature.ROOT_A;
+						break;
+					case 5:
+						root = KeySignature.ROOT_E;
+						break;
+					case 6:
+						root = KeySignature.ROOT_B;
+						break;
+					case 10:
+						root = KeySignature.ROOT_F;
+						break;
+					default:
+						root = KeySignature.ROOT_C;
+						break;
+					}
+					
+					_song.getScore(0).getKeySignature().set(root, key);
 				}
 			}
 	    })

@@ -29,6 +29,12 @@ public class Global
 	};
 	
 	/**
+	 * The index of the very bottom note on the scale (i.e. the note value of
+	 * the first element in GRID_TO_PITCH). Assumes C = 0, D = 1, E = 2, etc.
+	 */
+	public static final int BOTTOM_NOTE = 6;
+	
+	/**
 	 * The ID of the piano sample. Very very temporary.
 	 */
 	public static int pianoID = 0;
