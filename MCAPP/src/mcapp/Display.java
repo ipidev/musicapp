@@ -30,6 +30,26 @@ public class Display extends View
 	//It would be nice if this and the Score were united some day.
 	//List with note coordinates and note length
 	static Vector<Pair<Integer, Integer, Integer>> _notePositions = new Vector<Pair<Integer, Integer, Integer>>();
+	//Signature strings
+	static String[] _signatureList = {"NONE ( C Major / A Minor )",
+									  "SHARPS:",
+									  "G Major / E Minor",
+									  "D Major / B Minor",
+									  "A Major / F# Minor",
+									  "E Major / C# Minor",
+									  "B Major / G# Minor",
+									  "F# Major / D# Minor",
+									  "C# Major / A# Minor",
+									  "FLATS:",
+									  "F Major / D Minor",
+									  "B" + "\u266D" + " Major / G Minor",
+									  "E" + "\u266D" + " Major / C Minor",
+									  "A" + "\u266D" + " Major / F Minor",
+									  "D" + "\u266D" + " Major / B" + "\u266D" + " Minor",
+									  "G" + "\u266D" + " Major / E" + "\u266D" + " Minor",
+									  "A" + "\u266D" + " Major / A" + "\u266D" + " Minor",									  
+									  };
+	
 	Canvas _canvas;
 	Paint _paint = new Paint();
 	
@@ -51,6 +71,7 @@ public class Display extends View
 	Bitmap _scaledKey = getResizedBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.key_sol), 0, _scaledScore.getHeight(), true, false);
 	
 	Bitmap _scaledBar = getResizedBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.bar), 0, _scaledScore.getHeight() / 2, true, false);
+	
 	//Bar position
 	int _barX;
 	int _barY;
@@ -59,6 +80,12 @@ public class Display extends View
 	Bitmap _scaledIndicator = getResizedBitmap(_indicator, _indicator.getWidth(), _scaledScore.getHeight(), false, false);
 	
 	Bitmap _scaledMenu = getResizedBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.note_selection), 0, (int)(_screenHeight / 4), true, false);
+	
+	Bitmap _scaledSharp = getResizedBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.sharp),0, (int)(_scaledNoteHeight * 3), true, false);
+	
+	Bitmap _flat = BitmapFactory.decodeResource(getResources(), R.drawable.flat);
+	Bitmap _scaledFlat = getResizedBitmap(_flat, 0, (int)( ((_scaledNoteHeight * 5) / 2) * 1.1 ), true, false);
+	int _scaledFlatOffsetY = (_scaledFlat.getHeight() * 58) / _flat.getHeight();
 	
 	//Temporary note drawing variables
 	int _column = 1000;
@@ -85,20 +112,46 @@ public class Display extends View
 	static boolean _isPlaying = false;
 	
 	//Menu position
-	float _menuX = _screenCenterX - (float)(_scaledMenu.getWidth() * 0.6);
+	float _menuX = _screenCenterX - (float)(_scaledMenu.getWidth() * 0.55);
 	float _menuY = _screenCenterY - (float)(_scaledMenu.getHeight());
 	
 	//the indicator of the "screen" currently viewed
 	static int _screenPosition = 0;
 	
-	//Flags for additional menu
+	//Flag for note choosing menu
 	static boolean _isNoteChoosingActive = false;
+	
+	//Signature draw positions
+	int _signaturePositionsY[] = { _screenCenterY - (int)(_scaledScore.getHeight() * 0.8) + 1 * (_scaledNoteHeight / 2),
+								   _screenCenterY - (int)(_scaledScore.getHeight() * 0.8) + 4 * (_scaledNoteHeight / 2),
+								   _screenCenterY - (int)(_scaledScore.getHeight() * 0.8) + 0 * (_scaledNoteHeight / 2),
+								   _screenCenterY - (int)(_scaledScore.getHeight() * 0.8) + 3 * (_scaledNoteHeight / 2),
+								   _screenCenterY - (int)(_scaledScore.getHeight() * 0.8) + 6 * (_scaledNoteHeight / 2),
+								   _screenCenterY - (int)(_scaledScore.getHeight() * 0.8) + 2 * (_scaledNoteHeight / 2),
+								   _screenCenterY - (int)(_scaledScore.getHeight() * 0.8) + 5 * (_scaledNoteHeight / 2),
+								   _screenCenterY - (int)(_scaledScore.getHeight() * 0.8) + 4 * (_scaledNoteHeight / 2),
+								   _screenCenterY - (int)(_scaledScore.getHeight() * 0.8) + 1 * (_scaledNoteHeight / 2),
+								   _screenCenterY - (int)(_scaledScore.getHeight() * 0.8) + 5 * (_scaledNoteHeight / 2),
+								   _screenCenterY - (int)(_scaledScore.getHeight() * 0.8) + 2 * (_scaledNoteHeight / 2),
+								   _screenCenterY - (int)(_scaledScore.getHeight() * 0.8) + 6 * (_scaledNoteHeight / 2),
+								   _screenCenterY - (int)(_scaledScore.getHeight() * 0.8) + 3 * (_scaledNoteHeight / 2),
+								   _screenCenterY - (int)(_scaledScore.getHeight() * 0.8) + 7 * (_scaledNoteHeight / 2),
+								   };
+	
+	//Active signature based on _signatureList
+	static int	_currentSignature = 0;
 	
 	//Selected note
 	static int _selectedNote = -1;
 	
 	//Flag for deletion. This allows the note to be marked 1st and deleted 2nd.
 	boolean _toDelete = false;
+	
+	//Selected accidental
+	int _accidentalToDraw = -1;
+	
+	// -1, 0, 1 for minor, no signature, major respectively
+	int _mode = 0;
 	
 	/**
 	 * Reference to the current song.
@@ -110,6 +163,12 @@ public class Display extends View
 	public static int getScreen()
 	{
 		return _screenPosition;
+	}
+	
+	//Getter for the _signatureList
+	public static String[] getSignatures()
+	{
+		return _signatureList;
 	}
 	
 	//Constructors
@@ -175,6 +234,9 @@ public class Display extends View
     	{
     		indicatorDraw();
     	}
+    	
+    	//Draw signatures
+    	drawSignatures();
     	
     	//Issue a redraw
     	invalidate();
@@ -520,5 +582,43 @@ public class Display extends View
 		Bitmap resizedBitmap = Bitmap.createBitmap(bm, 0, 0, width, height, matrix, false);
 		 
 		return resizedBitmap;		 
+	}
+	
+	//Sets the current signature
+	public static void setSignature(int position)
+	{
+		_currentSignature = position;
+	}
+	
+	public void drawSignatures()
+	{
+		if(_currentSignature == 0)
+		{
+			return;
+		}
+		else if(_currentSignature < 9)
+		{
+			int sharpStep = _scaledSharp.getWidth();
+			ColorFilter filter = new PorterDuffColorFilter(Color.BLACK, PorterDuff.Mode.SRC_IN);
+			_paint.setColorFilter(filter);
+			_paint.setAlpha(100);
+			for(int i = 2; i <= _currentSignature; i++)
+			{
+				_canvas.drawBitmap(_scaledSharp, _horStep + sharpStep * (i - 2), _signaturePositionsY[i - 2], _paint);
+			}
+			_paint.setAlpha(0);
+		}
+		else
+		{
+			int flatStep = _scaledFlat.getWidth();
+			ColorFilter filter = new PorterDuffColorFilter(Color.BLACK, PorterDuff.Mode.SRC_IN);
+			_paint.setColorFilter(filter);
+			_paint.setAlpha(100);
+			for(int i = 10; i <= _currentSignature; i++)
+			{
+				_canvas.drawBitmap(_scaledFlat, _horStep + flatStep * (i - 10), _signaturePositionsY[i - 3], _paint);
+			}
+			_paint.setAlpha(0);
+		}
 	}
 }

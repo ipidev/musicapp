@@ -33,48 +33,46 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
     }
     public static final class drawable {
         public static final int bar=0x7f020000;
-        public static final int ic_launcher=0x7f020001;
-        public static final int indicator=0x7f020002;
-        public static final int key_sol=0x7f020003;
-        public static final int note=0x7f020004;
-        public static final int note_16=0x7f020005;
-        public static final int note_2=0x7f020006;
-        public static final int note_32=0x7f020007;
-        public static final int note_4=0x7f020008;
-        public static final int note_64=0x7f020009;
-        public static final int note_8=0x7f02000a;
-        public static final int note_bottom=0x7f02000b;
-        public static final int note_crossed=0x7f02000c;
-        public static final int note_selection=0x7f02000d;
-        public static final int note_top=0x7f02000e;
-        public static final int score=0x7f02000f;
+        public static final int flat=0x7f020001;
+        public static final int ic_launcher=0x7f020002;
+        public static final int indicator=0x7f020003;
+        public static final int key_sol=0x7f020004;
+        public static final int note=0x7f020005;
+        public static final int note_16=0x7f020006;
+        public static final int note_2=0x7f020007;
+        public static final int note_32=0x7f020008;
+        public static final int note_4=0x7f020009;
+        public static final int note_64=0x7f02000a;
+        public static final int note_8=0x7f02000b;
+        public static final int note_bottom=0x7f02000c;
+        public static final int note_crossed=0x7f02000d;
+        public static final int note_selection=0x7f02000e;
+        public static final int note_top=0x7f02000f;
+        public static final int score=0x7f020010;
+        public static final int sharp=0x7f020011;
     }
     public static final class id {
-        public static final int action_export=0x7f0a0013;
-        public static final int action_import=0x7f0a0012;
-        public static final int action_settings=0x7f0a0011;
+        public static final int action_export=0x7f0a0010;
+        public static final int action_import=0x7f0a000f;
+        public static final int action_settings=0x7f0a000e;
         public static final int bpmBar=0x7f0a0008;
-        public static final int button_play=0x7f0a000e;
-        public static final int button_stop=0x7f0a000f;
         public static final int changeNoteLength=0x7f0a000c;
         public static final int checkBox1=0x7f0a0006;
         public static final int clear=0x7f0a000b;
         public static final int display=0x7f0a0003;
         public static final int dummy_button=0x7f0a0002;
-        public static final int editor=0x7f0a000d;
         public static final int fullscreen_content=0x7f0a0000;
         public static final int fullscreen_content_controls=0x7f0a0001;
         public static final int nextScore=0x7f0a000a;
+        public static final int pickSignature=0x7f0a000d;
         public static final int playButton=0x7f0a0005;
         public static final int prevScore=0x7f0a0009;
         public static final int recordButton=0x7f0a0004;
-        public static final int slider=0x7f0a0010;
         public static final int stopButton=0x7f0a0007;
     }
     public static final class layout {
         public static final int activity_fullscreen=0x7f030000;
         public static final int activity_main=0x7f030001;
-        public static final int activity_main_shavarsh=0x7f030002;
     }
     public static final class menu {
         public static final int main=0x7f090000;
@@ -92,6 +90,7 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
          */
         public static final int app_name=0x7f070000;
         public static final int button_changeNoteLength=0x7f070010;
+        public static final int button_changeSignature=0x7f070011;
         public static final int button_clear=0x7f07000f;
         public static final int button_next=0x7f07000e;
         public static final int button_pause=0x7f07000b;

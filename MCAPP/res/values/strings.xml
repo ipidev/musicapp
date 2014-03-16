@@ -21,4 +21,5 @@
 	<string name="button_next">Next</string>
 	<string name="button_clear">Clear</string>
 	<string name="button_changeNoteLength">Change length</string>
+	<string name="button_changeSignature">Change signature</string>
 </resources>

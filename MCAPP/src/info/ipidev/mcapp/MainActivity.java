@@ -3,13 +3,17 @@ package info.ipidev.mcapp;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import mcapp.Display;
 import mcapp.Global;
 import mcapp.Player;
-import mcapp.Display;
 import mcapp.Song;
 import mcapp.SoundPlayer;
 import mcapp.SoundRecorder;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.DialogFragment;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.View;
@@ -260,6 +264,24 @@ public class MainActivity extends Activity
 	public void onChangeNoteLengthButton(View view)
 	{
 		Display.noteLengthMenu();
+	}
+	
+	public void onChangeSignature(View view)
+	{
+		new AlertDialog.Builder(this)
+	    .setTitle("Choose signature")
+	    .setItems(Display.getSignatures(), new DialogInterface.OnClickListener()
+	    {
+			public void onClick(DialogInterface dialog, int which)
+			{
+				if(!(which == 1 || which == 9))
+				{
+					//do something
+					Display.setSignature(which);
+				}
+			}
+	    })
+	     .show();
 	}
 }
 
