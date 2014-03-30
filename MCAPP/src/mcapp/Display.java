@@ -10,69 +10,154 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.ColorFilter;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.util.AttributeSet;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
 /**
- * Responsible for... Perhaps also give this a better name. - Done.
+ * Responsible for drawing the UI.
  * @author Shavarsh, Sean
  *
  */
 public class Display extends View 
 {
 	//It would be nice if this and the Score were united some day.
+	//List with note coordinates and note length
 	static Vector<Pair<Integer, Integer, Integer>> _notePositions = new Vector<Pair<Integer, Integer, Integer>>();
+	//Signature strings
+	static String[] _signatureList = {"NONE ( C Major / A Minor )",
+									  "SHARPS:",
+									  "G Major / E Minor",
+									  "D Major / B Minor",
+									  "A Major / F# Minor",
+									  "E Major / C# Minor",
+									  "B Major / G# Minor",
+									  "F# Major / D# Minor",
+									  "C# Major / A# Minor",
+									  "FLATS:",
+									  "F Major / D Minor",
+									  "B" + "\u266D" + " Major / G Minor",
+									  "E" + "\u266D" + " Major / C Minor",
+									  "A" + "\u266D" + " Major / F Minor",
+									  "D" + "\u266D" + " Major / B" + "\u266D" + " Minor",
+									  "G" + "\u266D" + " Major / E" + "\u266D" + " Minor",
+									  "A" + "\u266D" + " Major / A" + "\u266D" + " Minor",									  
+									  };
+	
 	Canvas _canvas;
 	Paint _paint = new Paint();
 	
-	Bitmap _score = BitmapFactory.decodeResource(getResources(), R.drawable.score);
-	Bitmap _note = BitmapFactory.decodeResource(getResources(), R.drawable.note);
-	Bitmap _tempNote = BitmapFactory.decodeResource(getResources(), R.drawable.note);
-	Bitmap _indicator = BitmapFactory.decodeResource(getResources(), R.drawable.indicator);
-	Bitmap _noteSelection = BitmapFactory.decodeResource(getResources(), R.drawable.note_selection);
+	//Screen measurements
+	DisplayMetrics _metrics = getResources().getDisplayMetrics();
+	int _screenWidth = _metrics.widthPixels;
+	int _screenHeight = _metrics.heightPixels;
+	int _screenCenterX = _screenWidth / 2;
+	int _screenCenterY = _screenHeight / 2;
 	
+	//Bitmap initialisation
+	Bitmap _scaledNote = getResizedBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.note), 0, (int)(_screenHeight / 4), true, false);	
+	int _scaledNoteHeight = (int)(_scaledNote.getHeight() * 0.24);
+	
+	Bitmap _score = BitmapFactory.decodeResource(getResources(), R.drawable.score);
+	int scaledScoreY = (_score.getHeight() * 4 * _scaledNoteHeight) / (_score.getHeight() / 2);
+	Bitmap _scaledScore = getResizedBitmap(_score, (int)(_screenWidth * 0.9), scaledScoreY, false, false);
+	
+	Bitmap _scaledKey = getResizedBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.key_sol), 0, _scaledScore.getHeight(), true, false);
+	
+	Bitmap _scaledBar = getResizedBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.bar), 0, _scaledScore.getHeight() / 2, true, false);
+	
+	//Bar position
+	int _barX;
+	int _barY;
+	
+	Bitmap _indicator = BitmapFactory.decodeResource(getResources(), R.drawable.indicator);
+	Bitmap _scaledIndicator = getResizedBitmap(_indicator, _indicator.getWidth(), _scaledScore.getHeight(), false, false);
+	
+	Bitmap _scaledMenu = getResizedBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.note_selection), 0, (int)(_screenHeight / 4), true, false);
+	
+	Bitmap _scaledSharp = getResizedBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.sharp),0, (int)(_scaledNoteHeight * 3), true, false);
+	
+	Bitmap _flat = BitmapFactory.decodeResource(getResources(), R.drawable.flat);
+	Bitmap _scaledFlat = getResizedBitmap(_flat, 0, (int)( ((_scaledNoteHeight * 5) / 2) * 1.1 ), true, false);
+	int _scaledFlatOffsetY = (_scaledFlat.getHeight() * 58) / _flat.getHeight();
+	
+	//Temporary note drawing variables
 	int _column = 1000;
 	int _row = 1000;
-	int _horStep = -1;
-	int _vertStep = -1;
-	float _eventX = 1000;
-	float _eventY = 1000;
-	//Initial indicator position
-	static float _indicatorPositionX = 60;
-	float _indicatorPositionY = 30;
+	
+	//Note positioning variables
+	int _eventDisplacementX = 150;
+	int _horStep = _scaledNote.getWidth();
+	int _vertStep = _scaledNoteHeight / 2;
+	int _upperDistance = _screenCenterY - (int)(_scaledScore.getHeight() * 0.8) - _scaledNoteHeight / 2;
+	int _leftDistance = _screenWidth / 30;
+	
+	//Touch event coordinates
+	float _eventX;
+	float _eventY;
+	
+	//Indicator variables
+	float _defaultIndicatorPositionX = _horStep / 2;
+	float _indicatorPositionX = _defaultIndicatorPositionX;
+	float _indicatorPositionY = (float)(_screenHeight * 0.13);
+	static boolean _toBeReset = false; 
+	static float _currentBeat = 0;
+	static float _beatProgress = 0;
+	static boolean _isPlaying = false;
+	
+	//Menu position
+	float _menuX = _screenCenterX - (float)(_scaledMenu.getWidth() * 0.55);
+	float _menuY = _screenCenterY - (float)(_scaledMenu.getHeight());
+	
 	//the indicator of the "screen" currently viewed
 	static int _screenPosition = 0;
-	//Flags for additional menu
+	
+	//Flag for note choosing menu
 	static boolean _isNoteChoosingActive = false;
-	static boolean _isMenuActive = false;
-	//Menu position
-	float _menuX = 130;
-	float _menuY = 100;
-	//Targeted note
+	
+	//Signature draw positions
+	int _signaturePositionsY[] = { _screenCenterY - (int)(_scaledScore.getHeight() * 0.8) + 1 * (_scaledNoteHeight / 2),
+								   _screenCenterY - (int)(_scaledScore.getHeight() * 0.8) + 4 * (_scaledNoteHeight / 2),
+								   _screenCenterY - (int)(_scaledScore.getHeight() * 0.8) + 0 * (_scaledNoteHeight / 2),
+								   _screenCenterY - (int)(_scaledScore.getHeight() * 0.8) + 3 * (_scaledNoteHeight / 2),
+								   _screenCenterY - (int)(_scaledScore.getHeight() * 0.8) + 6 * (_scaledNoteHeight / 2),
+								   _screenCenterY - (int)(_scaledScore.getHeight() * 0.8) + 2 * (_scaledNoteHeight / 2),
+								   _screenCenterY - (int)(_scaledScore.getHeight() * 0.8) + 5 * (_scaledNoteHeight / 2),
+								   _screenCenterY - (int)(_scaledScore.getHeight() * 0.8) + 4 * (_scaledNoteHeight / 2),
+								   _screenCenterY - (int)(_scaledScore.getHeight() * 0.8) + 1 * (_scaledNoteHeight / 2),
+								   _screenCenterY - (int)(_scaledScore.getHeight() * 0.8) + 5 * (_scaledNoteHeight / 2),
+								   _screenCenterY - (int)(_scaledScore.getHeight() * 0.8) + 2 * (_scaledNoteHeight / 2),
+								   _screenCenterY - (int)(_scaledScore.getHeight() * 0.8) + 6 * (_scaledNoteHeight / 2),
+								   _screenCenterY - (int)(_scaledScore.getHeight() * 0.8) + 3 * (_scaledNoteHeight / 2),
+								   _screenCenterY - (int)(_scaledScore.getHeight() * 0.8) + 7 * (_scaledNoteHeight / 2),
+								   };
+	
+	//Active signature based on _signatureList
+	static int	_currentSignature = 0;
+	
+	//Selected note
 	static int _selectedNote = -1;
+	
 	//Flag for deletion. This allows the note to be marked 1st and deleted 2nd.
 	boolean _toDelete = false;
+	
+	//Selected accidental
+	int _accidentalToDraw = -1;
+	
+	// -1, 0, 1 for minor, no signature, major respectively
+	int _mode = 0;
 	
 	/**
 	 * Reference to the current song.
 	 */
 	private static Song _song;
 	
-	/**
-	 * Allows for conversion from the grid-based placing of notes to the pitches
-	 * of the notes in the song.
-	 */
-	private static final int[] GRID_TO_PITCH =
-	{
-		/* A5 */ 9, 7, 5, 4, 2, 0, -1,
-		/* A4 */ -3, -5, -7, -8, -10, -12, -13,
-		/* A3 */ -15
-	};
 	
 	//Getter for the _screenPosition
 	public static int getScreen()
@@ -80,14 +165,20 @@ public class Display extends View
 		return _screenPosition;
 	}
 	
+	//Getter for the _signatureList
+	public static String[] getSignatures()
+	{
+		return _signatureList;
+	}
+	
 	//Constructors
 	public Display(Context context) 
-	{
-		super(context);    
+	{		
+		super(context);   
     }
  
     public Display(Context context, AttributeSet attrs) 
-    {
+    {    	
         super(context);
     }    
     
@@ -110,28 +201,44 @@ public class Display extends View
     {		
 		//Initialisation
 		_canvas = canvas;
-    	
+		
     	//Score draw
-    	canvas.drawBitmap(_score, 0, 30, null);
+    	canvas.drawBitmap(_scaledScore, 0, _screenCenterY - (int)(_scaledScore.getHeight() * 0.8), null);
     	
-    	noteDraw();
-    	if(!_isNoteChoosingActive)
+    	//Key draw
+    	if(_screenPosition == 0)
     	{
+    		canvas.drawBitmap(_scaledKey, 0, _screenCenterY - (int)(_scaledKey.getHeight() * 0.8), null);
+    	}
+    	
+    	//Bar draw
+    	barDraw();
+    	
+    	//NoteDraw
+    	noteDraw();
+    	
+    	//Temporary note draw if menu is not shown
+    	if(!_isNoteChoosingActive)
+    	{    		
     		temporaryNoteDraw();
     	}
+    	//Draw menu
     	else
     	{
     		noteChooseMenuDraw();
     	}    	
-    	if(_screenPosition == 0)
+    	
+    	//Indicator draw
+    	animateIndicator();
+    	if(!(!_isPlaying && _screenPosition != 0))
     	{
     		indicatorDraw();
     	}
-    	else if(_screenPosition != 0 && _indicatorPositionX != 60)
-    	{
-    		indicatorDraw();
-    	}
-    	changeScore();
+    	
+    	//Draw signatures
+    	drawSignatures();
+    	
+    	//Issue a redraw
     	invalidate();
     }
     
@@ -142,14 +249,12 @@ public class Display extends View
 	public boolean onTouchEvent(MotionEvent event) 
 	{
 		Pair<Integer, Integer, Integer> tempPair;
+		
 		//Calculating horizontal and vertical displacement.
-		_eventX = event.getX() - 150;
+		_eventX = event.getX() - _eventDisplacementX;
 	    _eventY = event.getY();
-	    int upperDistance = 20;
-	    int leftDistance = 80;
-	    _vertStep = 18;
-	    _horStep = 75;
-	    int vertPosition =  ( (int)_eventY - upperDistance ) / _vertStep;
+	    
+	    int vertPosition =  ( (int)_eventY - _upperDistance ) / _vertStep;
 	    if(vertPosition < 1)
 		{
 	    	vertPosition = 1;
@@ -158,17 +263,17 @@ public class Display extends View
 		{
 			vertPosition = 15;
 		}
-		int horPosition = ( (int)_eventX - leftDistance ) / _horStep;
+		int horPosition = ( (int)_eventX - _leftDistance ) / _horStep;
 		if(horPosition < 1)
 		{
 			horPosition = 1;
 		}
-		if(horPosition > 10)
+		if(horPosition > 8)
 		{
-			horPosition = 10;
+			horPosition = 8;
 		}  
-	    _column = (int)(leftDistance + ( _horStep * horPosition ) );
-	    _row = (int)(upperDistance + ( _vertStep * vertPosition ) );
+	    _column = (int)(/*_leftDistance + */( _horStep * horPosition ) );
+	    _row = (int)(_upperDistance + ( _vertStep * vertPosition ) );
 	    
 	    //Press down event
 		if(event.getAction() == MotionEvent.ACTION_DOWN)
@@ -183,35 +288,11 @@ public class Display extends View
 		//Release event
 		if(event.getAction() == MotionEvent.ACTION_UP)
 		{	
-			//_eventX = event.getX();
-			//_eventY = event.getY();
-			
 			//Note selection initial logic
 			if(!_isNoteChoosingActive)
 			{
-			    /*vertPosition =  ( (int)_eventY - upperDistance ) / _vertStep;
-			    if(vertPosition < 1)
-				{
-			    	vertPosition = 1;
-				}
-				if(vertPosition > 15)
-				{
-					vertPosition = 15;
-				}
-				horPosition = ( (int)_eventX - leftDistance ) / _horStep;
-				if(horPosition < 1)
-				{
-					horPosition = 1;
-				}
-				if(horPosition > 10)
-				{
-					horPosition = 10;
-				}
-				int tempColumn = (int)(leftDistance + ( _horStep * horPosition ) );
-			    int tempRow = (int)(upperDistance + ( _vertStep * vertPosition ) );
-			    */
 			    //Create a temporary pair
-			    tempPair = new Pair<Integer, Integer, Integer>(_column + ( _horStep * 5 * _screenPosition ), _row, 1);
+			    tempPair = new Pair<Integer, Integer, Integer>(_column + ( _horStep * 4 * _screenPosition ), _row, 1);
 			    //Check if there's a note on that location	    
 			    if(_notePositions.contains(tempPair))
 			    {
@@ -226,15 +307,14 @@ public class Display extends View
 			    }			    		
 			
 			    //Draw note logic, if the note choosing menu is not active			    
-			    //Check if there's already a note there	
-			    
+			    //Check if there's already a note there			    
 			    if(_notePositions.contains(tempPair))
 			    {
 			    	if(_toDelete)
 			    	{
 				    	_notePositions.remove(tempPair);
-				    	_song.getScore(0).removeNote(horPosition - 1 + ( 5 * _screenPosition),
-				    								 GRID_TO_PITCH[vertPosition - 1]);
+				    	_song.getScore(0).removeNote(horPosition - 1 + (4 * _screenPosition),
+				    								 vertPosition - 1);
 				    	_selectedNote = -1;
 				    	_toDelete = false;
 			    	}
@@ -242,55 +322,30 @@ public class Display extends View
 			    else
 			    {
 			    	_notePositions.add(tempPair);		 
-			    	if (_song.getScore(0).addNote(horPosition - 1 + ( 5 * _screenPosition),
-							 					  GRID_TO_PITCH[vertPosition - 1],
-							 					  0))
-			    		Log.d("PLAYA", "NOTE ADDING SUCCESSFUL!!!");
+			    	_song.getScore(0).addNote(horPosition - 1 + (4 * _screenPosition),
+			    							  vertPosition - 1, 0);
 			    }			    
 			}		
 			//Choose note length if menu is active
 			else
 			{
-				int correctX = (int)(_eventX + 150);
-				if(correctX > _menuX && correctX < _menuX + _noteSelection.getWidth()
-						&& _eventY > _menuY && _eventY < _menuY + _noteSelection.getHeight())
-				{
-					int length = 1;					
-					switch((correctX - (int)_menuX ) / 83) // 83(width of non-full notes) needs to be stored somewhere! Fix when addressing scaling
-					{
-						case 0:
-							length = 2;
-							break;
-						case 1:
-							length = 4;
-							break;
-						case 2:
-							length = 8;
-							break;
-						case 3:
-							length = 16;
-							break;
-						case 4:
-							length = 32;
-							break;
-						case 5:
-							length = 64;
-							break;
-						default:
-							break;
-					}
+				int correctX = (int)(_eventX + _eventDisplacementX);
+				if(correctX > _menuX && correctX < _menuX + _scaledMenu.getWidth()
+						&& _eventY > _menuY && _eventY < _menuY + _scaledMenu.getHeight())
+				{					
+					int length = (int)Math.pow(2, (correctX - (int)_menuX) / _scaledNote.getWidth());
+					
 					_notePositions.get(_selectedNote).setR(length);
 					_isNoteChoosingActive = false;
 				}
 				else
 				{
 					_isNoteChoosingActive = false;
-				}		    
-			}			 
-		   
+				}
+			}
 			_column = 1000;
-		    _row = 1000;
-		}
+			_row = 1000;
+		}		
 		
 	    return true;
 	}
@@ -301,70 +356,39 @@ public class Display extends View
 		int position;
     	for(int i = 0; i < _notePositions.size(); i++)
     	{
+    		Bitmap note = BitmapFactory.decodeResource(getResources(), R.drawable.note);
     		position = _notePositions.get(i).getM() / _vertStep;
-    		if(position < 2)
-    		{
-    			position = 2;
-    		}
-    		if(position > 16)
-    		{
-    			position = 16;
-    		}
+    		
     		//Set bitmap & position
     		if(_notePositions.get(i).getR() != 1)
     		{
-    			switch(_notePositions.get(i).getR())
-    			{
-    			case 2:
-    				_note = BitmapFactory.decodeResource(getResources(), R.drawable.note_half);
-    				break;
-    			case 4:
-    				_note = BitmapFactory.decodeResource(getResources(), R.drawable.note_quarter);
-    				break;
-    			case 8:
-    				_note = BitmapFactory.decodeResource(getResources(), R.drawable.note_eighth);
-    				break;
-    			case 16:
-    				_note = BitmapFactory.decodeResource(getResources(), R.drawable.note_sixteenth);
-    				break;
-    			case 32:
-    				_note = BitmapFactory.decodeResource(getResources(), R.drawable.note_thirty_second);
-    				break;
-    			case 64:
-    				_note = BitmapFactory.decodeResource(getResources(), R.drawable.note_sixty_fourth);
-    				break;
-    			default:
-    				break;
-    			}
+    			int noteLength = _notePositions.get(i).getR();
+    			String noteName = "note_" + noteLength;
+    			int resID = getResources().getIdentifier(noteName, "drawable", getContext().getPackageName());
+    		    note  = BitmapFactory.decodeResource(getResources(), resID);
     		}
     		else
     		{
 	    		switch(position)
 	    		{
-	    			case 2:
-	    				_note = BitmapFactory.decodeResource(getResources(), R.drawable.note_bottom);
+	    			case 4:
+	    				note = BitmapFactory.decodeResource(getResources(), R.drawable.note_bottom);
 	    				break;
-	    			case 16:
-	    				_note = BitmapFactory.decodeResource(getResources(), R.drawable.note_top);
+	    			case 18:
+	    				note = BitmapFactory.decodeResource(getResources(), R.drawable.note_top);
 	    				break;
-	    			case 3:
-	    			case 15:
-	    				_note = BitmapFactory.decodeResource(getResources(), R.drawable.note_crossed);
+	    			case 5:
+	    			case 17:
+	    				note = BitmapFactory.decodeResource(getResources(), R.drawable.note_crossed);
 	    				break;
 	    			default:
-	    				_note = BitmapFactory.decodeResource(getResources(), R.drawable.note);
 	    				break;
 	    		}
     		}
-    		int positionY;
-    		if(_notePositions.get(i).getR() != 1)
-    		{
-    			positionY = _notePositions.get(i).getM() - 90;
-    		}
-    		else
-    		{
-    			positionY = _notePositions.get(i).getM();
-    		}
+    		
+    		Bitmap scaledNote = getResizedBitmap(note, 0, (int)(_screenHeight / 4), true, false);
+    		int positionY = _notePositions.get(i).getM() - _scaledNote.getHeight() + _scaledNoteHeight;
+    	
     		//Drawing
     		if(i == _selectedNote)
     		{
@@ -375,13 +399,13 @@ public class Display extends View
     		{
     			_paint = new Paint();
     		}
-       		if(_screenPosition == 0 && _notePositions.get(i).getL() <= _horStep * 9)
+       		if(_screenPosition == 0 && _notePositions.get(i).getL() <= _horStep * 8)
     		{
-    			_canvas.drawBitmap(_note, _notePositions.get(i).getL(), positionY, _paint);
+    			_canvas.drawBitmap(scaledNote, _notePositions.get(i).getL(), positionY, _paint);
     		}
-    		else if(_notePositions.get(i).getL() > ((_horStep * 2 ) + (_horStep * 5 * _screenPosition )) && _notePositions.get(i).getL() < (( _horStep * 9 ) + ( _horStep * 5 * _screenPosition )))
+    		else if(_notePositions.get(i).getL() > (/*(_horStep * 1 ) +*/ (_horStep * 4 * _screenPosition )) && _notePositions.get(i).getL() < (( _horStep * 9 ) + ( _horStep * 4 * _screenPosition )))
     		{
-    			_canvas.drawBitmap(_note, _notePositions.get(i).getL() - ( _horStep * 5 * _screenPosition ), positionY, _paint);
+    			_canvas.drawBitmap(scaledNote, _notePositions.get(i).getL() - ( _horStep * 4 * _screenPosition ), positionY, _paint);
     		}
     	}
 	}
@@ -389,60 +413,78 @@ public class Display extends View
 	//Temporary note draw    
 	public void temporaryNoteDraw()
 	{
+		Bitmap note = BitmapFactory.decodeResource(getResources(), R.drawable.note);
     	int position;
     	position = _row / _vertStep;
-        if(position < 2)
-    	{
-    		position = 2;
-    	}
-    	if(position > 16)
-    	{
-    		position = 16;
-    	}
+    	
     	switch(position)
     	{
-    		case 2:
-    			_tempNote = BitmapFactory.decodeResource(getResources(), R.drawable.note_bottom);
+    		case 4:
+    			note = BitmapFactory.decodeResource(getResources(), R.drawable.note_bottom);
     			break;
-    		case 16:
-    			_tempNote = BitmapFactory.decodeResource(getResources(), R.drawable.note_top);
+    		case 18:
+    			note = BitmapFactory.decodeResource(getResources(), R.drawable.note_top);
     			break;
-    		case 3:
-    		case 15:
-    			_tempNote = BitmapFactory.decodeResource(getResources(), R.drawable.note_crossed);
+    		case 5:
+    		case 17:
+    			note = BitmapFactory.decodeResource(getResources(), R.drawable.note_crossed);
     			break;
-    		default:
-    			_tempNote = BitmapFactory.decodeResource(getResources(), R.drawable.note);
+    		default:    			
     			break;
     	}
+    	Bitmap scaledNote = getResizedBitmap(note, 0, (int)(_screenHeight / 4), true, false);
+    	int positionY = _row - _scaledNote.getHeight() + _scaledNoteHeight;
+    	
     	ColorFilter filter = new PorterDuffColorFilter(Color.GREEN, PorterDuff.Mode.SRC_IN);
-    	_paint.setColorFilter(filter);
-        _canvas.drawBitmap(_tempNote, _column, _row, _paint);  	
+    	_paint.setColorFilter(filter);    	
+        _canvas.drawBitmap(scaledNote, _column, positionY, _paint);
 	}
 	
 	//Indicator drawing
 	public void indicatorDraw()
 	{
-		_canvas.drawBitmap(_indicator, _indicatorPositionX, _indicatorPositionY, null);
+		_canvas.drawBitmap(_scaledIndicator, _indicatorPositionX, _indicatorPositionY, null);
 	}
 	
 	//Note choosing menu drawing
 	public void noteChooseMenuDraw()
 	{
-		_canvas.drawBitmap(_noteSelection, _menuX, _menuY, null);
+		_canvas.drawBitmap(_scaledMenu, _menuX, _menuY, null);
 	}
 	
 	//Move indicator
-	public static void moveIndicator(float currentBeat, float beatProgress)
+	public static void passPlayProgress(float currentBeat, float beatProgress)
 	{
 		currentBeat++;
-		_indicatorPositionX = 60 + (75 * currentBeat) + (75 * beatProgress); //75 = _horStep. Has to be fixed with scaling.
+		_currentBeat = currentBeat;
+		_beatProgress = beatProgress;
+	}
+	
+	//This is how the Display class knows whether the player is currently active
+	public static void passPlayerStatus(boolean status)
+	{
+		_isPlaying = status;
+	}
+	
+	//Indicator movement
+	public void animateIndicator()
+	{
+		//Reset indicator
+    	if(_toBeReset)
+    	{
+    		_indicatorPositionX = _defaultIndicatorPositionX;
+    		_toBeReset = false;
+    	}
+    	if(_isPlaying)
+    	{
+    		_indicatorPositionX = _defaultIndicatorPositionX + (_horStep * _currentBeat) + (_horStep * _beatProgress);
+    	}
 	}
 	
 	//Resets the indicator's position when the player is stopped
-	public static void resetIndicatorPosition(float value)
+	public static void resetIndicatorPosition()
 	{
-		_indicatorPositionX = 60;
+		_toBeReset = true;
 	}
 	
 	//Called when the score is "scrolled"
@@ -457,8 +499,10 @@ public class Display extends View
 		_screenPosition++;
 	}
 	
+	//Responsible for displaying the note length menu
 	public static void noteLengthMenu()
 	{
+		//If there's not a selected note don't show the menu
 		if(_selectedNote != -1)
 		{
 			_isNoteChoosingActive = !_isNoteChoosingActive;
@@ -466,29 +510,115 @@ public class Display extends View
 	}
 	
 	//Changes the score bitmap
-	public void changeScore()
+	public void barDraw()
 	{
-		if(_screenPosition <= 0)
-		{
-			_score = BitmapFactory.decodeResource(getResources(), R.drawable.score);
+		if(_screenPosition < 0)
+		{			
 			_screenPosition = 0;
+		}		
+		if(_screenPosition % 2 != 0)
+		{
+			_barX = (_scaledScore.getWidth() - (int)((double)(_scaledScore.getWidth() * 0.46)));
+			_barY = _screenCenterY - (int)((double)(_scaledScore.getHeight() * 0.8) / 1.48);
 		}
 		else
 		{
-			if(_screenPosition % 2 != 0)
-			{
-				_score = BitmapFactory.decodeResource(getResources(), R.drawable.score_transition);
-			}
-			else
-			{
-				_score = BitmapFactory.decodeResource(getResources(), R.drawable.score_next);
-			}
+			_barX = 0;
+			_barY = _screenCenterY - (int)((double)(_scaledScore.getHeight() * 0.8) / 1.48);			
+			_canvas.drawBitmap(_scaledBar, _barX, _barY, null);
+			_barX = _scaledScore.getWidth() - _scaledBar.getWidth();
+			_barY = _screenCenterY - (int)((double)(_scaledScore.getHeight() * 0.8) / 1.48);
+			
+		}
+		_canvas.drawBitmap(_scaledBar, _barX, _barY, null);
+	}
+	
+	//Clears all notes
+	public static void clear()
+	{
+		if(!_isNoteChoosingActive)
+		{
+			_song.getScore(0).clearScore();
+			_notePositions.clear();
+			_selectedNote = -1;
 		}
 	}
 	
-	public static void clear()
+	//Method returns resized bitmap
+	
+	public Bitmap getResizedBitmap(Bitmap bm, int newWidth, int newHeight, boolean widthToHeightRatio, boolean heightToWidthRatio)
+	{		 
+		int width = bm.getWidth();		 
+		int height = bm.getHeight();
+		float scaleWidth = 0;		 
+		float scaleHeight = 0;
+		if(widthToHeightRatio && heightToWidthRatio)
+		{
+			Log.d("ASD", "Bitmap scaling is failing!");
+		}
+		else if(widthToHeightRatio)
+		{
+			scaleHeight = ((float) newHeight) / height;
+			scaleWidth = scaleHeight;
+		}
+		else if(heightToWidthRatio)
+		{
+			scaleWidth = ((float) newWidth) / width;
+			scaleHeight = scaleWidth;
+		}
+		else
+		{
+			scaleWidth = ((float) newWidth) / width;
+			scaleHeight = ((float) newHeight) / height;
+		}		
+		 
+		// CREATE A MATRIX FOR THE MANIPULATION		 
+		Matrix matrix = new Matrix();
+		 
+		// RESIZE THE BIT MAP		 
+		matrix.postScale(scaleWidth, scaleHeight);
+		 
+		// RECREATE THE NEW BITMAP		 
+		Bitmap resizedBitmap = Bitmap.createBitmap(bm, 0, 0, width, height, matrix, false);
+		 
+		return resizedBitmap;		 
+	}
+	
+	//Sets the current signature
+	public static void setSignature(int position)
 	{
-		_song.getScore(0).clearScore();
-		_notePositions.clear();
+		_currentSignature = position;
+	}
+	
+	public void drawSignatures()
+	{
+		if(_currentSignature == 0)
+		{
+			return;
+		}
+		else if(_currentSignature < 9)
+		{
+			int sharpStep = _scaledSharp.getWidth();
+			ColorFilter filter = new PorterDuffColorFilter(Color.BLACK, PorterDuff.Mode.SRC_IN);
+			_paint.setColorFilter(filter);
+			_paint.setAlpha(100);
+			for(int i = 2; i <= _currentSignature; i++)
+			{
+				_canvas.drawBitmap(_scaledSharp, _horStep + sharpStep * (i - 2), _signaturePositionsY[i - 2], _paint);
+			}
+			_paint.setAlpha(0);
+		}
+		else
+		{
+			int flatStep = _scaledFlat.getWidth();
+			ColorFilter filter = new PorterDuffColorFilter(Color.BLACK, PorterDuff.Mode.SRC_IN);
+			_paint.setColorFilter(filter);
+			_paint.setAlpha(100);
+			for(int i = 10; i <= _currentSignature; i++)
+			{
+				_canvas.drawBitmap(_scaledFlat, _horStep + flatStep * (i - 10), _signaturePositionsY[i - 3], _paint);
+			}
+			_paint.setAlpha(0);
+		}
 	}
 }

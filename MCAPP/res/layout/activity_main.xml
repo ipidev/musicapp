@@ -10,8 +10,8 @@
     
     <mcapp.Display
         android:id="@+id/display"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 
     <Button
         android:id="@+id/recordButton"
@@ -66,28 +66,28 @@
 		android:id="@+id/prevScore"
 		android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop = "true"
-        android:layout_alignParentLeft = "true"
-        android:text = "@string/button_previous"
-        android:onClick = "onBackButton" />
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:text="@string/button_previous"
+        android:onClick="onBackButton" />
         
 	<Button
 		android:id="@+id/nextScore"
 		android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop = "true"
-        android:layout_alignParentRight = "true"
-        android:text = "@string/button_next"
-        android:onClick = "onNextButton" />
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:text="@string/button_next"
+        android:onClick="onNextButton" />
         
 	<Button
 		android:id="@+id/clear"
 		android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop = "true"
-        android:layout_toLeftOf = "@id/nextScore"
-        android:text = "@string/button_clear"
-        android:onClick = "onClearButton" />
+        android:layout_alignParentTop="true"
+        android:layout_toLeftOf="@id/nextScore"
+        android:text="@string/button_clear"
+        android:onClick="onClearButton" />
 	
 	<Button
 		android:id="@+id/changeNoteLength"
@@ -97,5 +97,14 @@
         android:layout_toLeftOf = "@id/clear"
         android:text = "@string/button_changeNoteLength"
         android:onClick = "onChangeNoteLengthButton" />
+	
+	<Button 
+	    android:id="@+id/pickSignature"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:layout_alignParentTop="true"
+	    android:layout_toRightOf="@id/prevScore"
+	    android:text="@string/button_changeSignature"
+	    android:onClick="onChangeSignature" />"
 
 </RelativeLayout>

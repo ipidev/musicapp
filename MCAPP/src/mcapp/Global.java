@@ -18,9 +18,21 @@ public class Global
 	public static final int BEATS_PER_SCORE = 16;
 	
 	/**
-	 * Maximum length of recorded sounds in seconds.
+	 * Allows for conversion from the grid-based placing of notes to the pitches
+	 * of the notes in the song.
 	 */
-	public static final float MAX_RECORDING_LENGTH = 2.0f;
+	public static final int[] GRID_TO_PITCH =
+	{
+		/* B5 */ 11, 9, 7, 5, 4, 2, 0,
+		/* B4 */ -1, -3, -5, -7, -8, -10, -12, 
+		/* B3 */ -13,
+	};
+	
+	/**
+	 * The index of the very bottom note on the scale (i.e. the note value of
+	 * the first element in GRID_TO_PITCH). Assumes C = 0, D = 1, E = 2, etc.
+	 */
+	public static final int BOTTOM_NOTE = 6;
 	
 	/**
 	 * The ID of the piano sample. Very very temporary.
