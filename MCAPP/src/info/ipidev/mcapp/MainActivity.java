@@ -12,8 +12,6 @@ import mcapp.SoundPlayer;
 import mcapp.SoundRecorder;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Dialog;
-import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.Menu;
@@ -29,7 +27,7 @@ public class MainActivity extends Activity
 	//Beat tracker
 	int _beat = -1;
 	int _multiplier = 0;
-	
+
 	/**
 	 * Loads, plays and unloads sounds.
 	 */
@@ -80,8 +78,6 @@ public class MainActivity extends Activity
 		_timer = new Timer();
 		_timer.scheduleAtFixedRate(new Updater(this), 0, 100);
 		
-		
-		
 		//Set up seek bar.
 		SeekBar bpmBar = (SeekBar)findViewById(R.id.bpmBar);
 		bpmBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener()
@@ -106,6 +102,9 @@ public class MainActivity extends Activity
 					_player.setBpm(_progress);
 			}
 		});
+		
+		
+		
 	}
 
 	@Override

@@ -1,7 +1,5 @@
 package mcapp;
 
-import android.util.Log;
-
 
 /**
  * Class responsible for handling any sound output as well as progressing

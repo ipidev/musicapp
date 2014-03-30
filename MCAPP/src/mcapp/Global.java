@@ -49,6 +49,10 @@ public class Global
 	 */
 	public static boolean useRecordedSound = false;
 	
+	/**
+	 * Check for first time app logins
+	 */
+	public static boolean firstLoadTime = false;
 	
 	private Global()
 	{
