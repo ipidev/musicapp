@@ -68,8 +68,6 @@ public class MainActivity extends Activity
     private ListView _drawerList;
     private ActionBarDrawerToggle _drawerToggle;
 
-    private String[] _planetTitles;
-
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
