@@ -13,11 +13,18 @@ import mcapp.SoundRecorder;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.res.Configuration;
 import android.os.Bundle;
+import android.support.v4.app.ActionBarDrawerToggle;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
 import android.view.Menu;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.ListView;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 //import mcapp.Timer;
@@ -53,6 +60,15 @@ public class MainActivity extends Activity
 	 * Responsible for recording and saving new sounds.
 	 */
 	private SoundRecorder _soundRecorder = null;
+	
+	/**
+	 * Left drawer stuff.
+	 */
+	private DrawerLayout _drawerLayout;
+    private ListView _drawerList;
+    private ActionBarDrawerToggle _drawerToggle;
+
+    private String[] _planetTitles;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -103,16 +119,109 @@ public class MainActivity extends Activity
 			}
 		});
 		
+		//Set up drawer.
+		_drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+		_drawerList = (ListView) findViewById(R.id.left_drawer);
 		
+		//Temporary array.
+		String[] tempStrings = {"hello", "poop", "bumhole", "does this work"};
 		
-	}
+		// set a custom shadow that overlays the main content when the drawer opens
+        _drawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
+        // set up the drawer's list view with items and click listener
+        _drawerList.setAdapter(new ArrayAdapter<String>(this,
+                R.layout.drawer_list_item, tempStrings));
+        _drawerList.setOnItemClickListener(new DrawerItemClickListener());
+        
+        //Set up drawer events I think??
+        _drawerToggle = new ActionBarDrawerToggle(
+                this,                  /* host Activity */
+                _drawerLayout,         /* DrawerLayout object */
+                R.drawable.ic_drawer,  /* nav drawer image to replace 'Up' caret */
+                R.string.drawer_open,  /* "open drawer" description for accessibility */
+                R.string.drawer_close  /* "close drawer" description for accessibility */
+                ) {
+            public void onDrawerClosed(View view)
+            {
+            	//Reset action bar title. We're not using this.
+                //getActionBar().setTitle(mTitle);
+                //invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+            }
 
+            public void onDrawerOpened(View drawerView)
+            {
+            	//Reset action bar title. We're not using this.
+                //getActionBar().setTitle(mDrawerTitle);
+                //invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+            }
+        };
+        _drawerLayout.setDrawerListener(_drawerToggle);
+
+        if (savedInstanceState == null)
+        {
+            selectItem(0);
+        }
+	}
+	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu)
 	{
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.main, menu);
 		return true;
+	}
+	
+	/* Called whenever we call invalidateOptionsMenu() */
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        //This is where you can hide things on the action bar if needbe.
+        boolean drawerOpen = _drawerLayout.isDrawerOpen(_drawerList);
+        return super.onPrepareOptionsMenu(menu);
+    }
+    
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        // Sync the toggle state after onRestoreInstanceState has occurred.
+        _drawerToggle.syncState();
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        // Pass any configuration change to the drawer toggls
+        _drawerToggle.onConfigurationChanged(newConfig);
+    }
+	
+	/**
+	 *  The click listener for ListView in the navigation drawer. Basically,
+	 *  a callback class.
+	 */
+	private class DrawerItemClickListener implements ListView.OnItemClickListener
+	{
+	    @Override
+	    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+	        selectItem(position);
+	    }
+	}
+	
+	/**
+	 * Callback function for when an item is chosen from the drawer.
+	 * @param position
+	 */
+	private void selectItem(int position)
+	{
+		new AlertDialog.Builder(this)
+			.setTitle("Woah!!")
+		    .setMessage("You pressed " + position)
+		    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener()
+		    {
+		        public void onClick(DialogInterface dialog, int which)
+		        { 
+		            //Something
+		        }
+		    })
+		    .show();
 	}
 	
 	/**
