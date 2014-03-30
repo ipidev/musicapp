@@ -17,8 +17,10 @@ import android.graphics.PorterDuffColorFilter;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Toast;
 
 /**
  * Responsible for drawing the UI.
@@ -65,8 +67,8 @@ public class Display extends View
 	int _scaledNoteHeight = (int)(_scaledNote.getHeight() * 0.24);
 	
 	Bitmap _score = BitmapFactory.decodeResource(getResources(), R.drawable.score);
-	int scaledScoreY = (_score.getHeight() * 4 * _scaledNoteHeight) / (_score.getHeight() / 2);
-	Bitmap _scaledScore = getResizedBitmap(_score, (int)(_screenWidth * 0.9), scaledScoreY, false, false);
+	int _scaledScoreY = (_score.getHeight() * 4 * _scaledNoteHeight) / (_score.getHeight() / 2);
+	Bitmap _scaledScore = getResizedBitmap(_score, _screenWidth, _scaledScoreY, false, false);
 	
 	Bitmap _scaledKey = getResizedBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.key_sol), 0, _scaledScore.getHeight(), true, false);
 	
@@ -95,7 +97,7 @@ public class Display extends View
 	int _eventDisplacementX = 150;
 	int _horStep = _scaledNote.getWidth();
 	int _vertStep = _scaledNoteHeight / 2;
-	int _upperDistance = _screenCenterY - (int)(_scaledScore.getHeight() * 0.8) - _scaledNoteHeight / 2;
+	int _upperDistance = _screenCenterY - (int)(_scaledScoreY * 0.8) - _scaledNoteHeight / 2;
 	int _leftDistance = _screenWidth / 30;
 	
 	//Touch event coordinates
@@ -106,7 +108,7 @@ public class Display extends View
 	float _defaultIndicatorPositionX = _horStep / 2;
 	float _indicatorPositionX = _defaultIndicatorPositionX;
 	float _indicatorPositionY = (float)(_screenHeight * 0.13);
-	static boolean _toBeReset = false; 
+	static boolean _toBeReset = false;
 	static float _currentBeat = 0;
 	static float _beatProgress = 0;
 	static boolean _isPlaying = false;
@@ -150,8 +152,22 @@ public class Display extends View
 	//Selected accidental
 	int _accidentalToDraw = -1;
 	
-	// -1, 0, 1 for minor, no signature, major respectively
-	int _mode = 0;
+	//Toast duration
+	int _duration = 0;
+	//Tracking variable
+	int _position = -1;
+	//Toast to be drawn
+	Toast _toast;
+	//Toast char offset array
+	int _charPositions[] = { 2,	//C
+							0, //B
+							-2,	//A
+							3,	//G
+							1,	//F
+							-1,	//E
+							-3,	//D
+							};
+
 	
 	/**
 	 * Reference to the current song.
@@ -174,12 +190,14 @@ public class Display extends View
 	//Constructors
 	public Display(Context context) 
 	{		
-		super(context);   
+		super(context); 
+		initialiseToast();
     }
  
     public Display(Context context, AttributeSet attrs) 
     {    	
         super(context);
+        initialiseToast();
     }    
     
     /**
@@ -357,7 +375,7 @@ public class Display extends View
     	for(int i = 0; i < _notePositions.size(); i++)
     	{
     		Bitmap note = BitmapFactory.decodeResource(getResources(), R.drawable.note);
-    		position = _notePositions.get(i).getM() / _vertStep;
+    		position = ( (int)_notePositions.get(i).getM() - _upperDistance ) / _vertStep;
     		
     		//Set bitmap & position
     		if(_notePositions.get(i).getR() != 1)
@@ -371,14 +389,14 @@ public class Display extends View
     		{
 	    		switch(position)
 	    		{
-	    			case 4:
+	    			case 1:
 	    				note = BitmapFactory.decodeResource(getResources(), R.drawable.note_bottom);
 	    				break;
-	    			case 18:
+	    			case 15:
 	    				note = BitmapFactory.decodeResource(getResources(), R.drawable.note_top);
 	    				break;
-	    			case 5:
-	    			case 17:
+	    			case 2:
+	    			case 14:
 	    				note = BitmapFactory.decodeResource(getResources(), R.drawable.note_crossed);
 	    				break;
 	    			default:
@@ -415,18 +433,20 @@ public class Display extends View
 	{
 		Bitmap note = BitmapFactory.decodeResource(getResources(), R.drawable.note);
     	int position;
-    	position = _row / _vertStep;
+    	//position = _row / _vertStep;
+    	position = ( _row - _upperDistance ) / _vertStep;
+    	
     	
     	switch(position)
     	{
-    		case 4:
+    		case 1:
     			note = BitmapFactory.decodeResource(getResources(), R.drawable.note_bottom);
     			break;
-    		case 18:
+    		case 15:
     			note = BitmapFactory.decodeResource(getResources(), R.drawable.note_top);
     			break;
-    		case 5:
-    		case 17:
+    		case 2:
+    		case 14:
     			note = BitmapFactory.decodeResource(getResources(), R.drawable.note_crossed);
     			break;
     		default:    			
@@ -438,6 +458,21 @@ public class Display extends View
     	ColorFilter filter = new PorterDuffColorFilter(Color.GREEN, PorterDuff.Mode.SRC_IN);
     	_paint.setColorFilter(filter);    	
         _canvas.drawBitmap(scaledNote, _column, positionY, _paint);
+        
+        //TOAST DRAW
+        if(_row != 1000 && _column != 1000 && position != _position)
+        {
+        	_toast.cancel();
+        	int offset = _charPositions[position % 7];
+        	char letter = (char)('A' + position % 7 + offset);
+        	//TO DO:
+        	//Display key signature
+        	//Setting text
+        	_toast.setText(String.valueOf(letter));
+        	//"Drawing"
+	        _toast.show();
+        }
+        _position = position;
 	}
 	
 	//Indicator drawing
@@ -620,5 +655,15 @@ public class Display extends View
 			}
 			_paint.setAlpha(0);
 		}
+	}
+	
+	public void initialiseToast()
+	{
+		Context context = getContext();
+        CharSequence text = "Hello toast!";
+        int duration = Toast.LENGTH_SHORT;
+        _duration = duration;	
+        _toast = Toast.makeText(context, text, duration);
+        _toast.setGravity(Gravity.BOTTOM|Gravity.CENTER_HORIZONTAL, 0, 0);
 	}
 }
