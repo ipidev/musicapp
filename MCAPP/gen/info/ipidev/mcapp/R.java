@@ -47,17 +47,23 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int key_sol=0x7f020008;
         public static final int note=0x7f020009;
         public static final int note_16=0x7f02000a;
-        public static final int note_2=0x7f02000b;
-        public static final int note_32=0x7f02000c;
-        public static final int note_4=0x7f02000d;
-        public static final int note_64=0x7f02000e;
-        public static final int note_8=0x7f02000f;
-        public static final int note_bottom=0x7f020010;
-        public static final int note_crossed=0x7f020011;
-        public static final int note_selection=0x7f020012;
-        public static final int note_top=0x7f020013;
-        public static final int score=0x7f020014;
-        public static final int sharp=0x7f020015;
+        public static final int note_16_flipped=0x7f02000b;
+        public static final int note_2=0x7f02000c;
+        public static final int note_2_flipped=0x7f02000d;
+        public static final int note_32=0x7f02000e;
+        public static final int note_32_flipped=0x7f02000f;
+        public static final int note_4=0x7f020010;
+        public static final int note_4_flipped=0x7f020011;
+        public static final int note_64=0x7f020012;
+        public static final int note_64_flipped=0x7f020013;
+        public static final int note_8=0x7f020014;
+        public static final int note_8_flipped=0x7f020015;
+        public static final int note_bottom=0x7f020016;
+        public static final int note_crossed=0x7f020017;
+        public static final int note_selection=0x7f020018;
+        public static final int note_top=0x7f020019;
+        public static final int score=0x7f02001a;
+        public static final int sharp=0x7f02001b;
     }
     public static final class id {
         public static final int action_export=0x7f0b0013;
