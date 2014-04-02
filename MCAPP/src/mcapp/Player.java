@@ -1,5 +1,8 @@
 package mcapp;
 
+import java.util.ArrayList;
+
+import android.util.Log;
 
 /**
  * Class responsible for handling any sound output as well as progressing
@@ -9,6 +12,14 @@ package mcapp;
  */
 public class Player 
 {
+	/**
+	 * Interface used for passing a callback function for when the song reaches the end.
+	 */
+	public interface EndOfSongCallback
+	{
+		public void callback();
+	}
+	 
 	/**
 	 * Holds the song data.
 	 */
@@ -48,6 +59,27 @@ public class Player
 	
 	
 	/**
+	 * Holds callback function for when a song reaches the end.
+	 */
+	private EndOfSongCallback _callback = null;
+	
+	/**
+	 * Amount of time that each note has been playing for.
+	 */
+	private ArrayList<Float> _noteTime = new ArrayList<Float>();
+	
+	/**
+	 * Amount of time set for each note that is currently playing.
+	 */
+	private ArrayList<Float> _noteDuration = new ArrayList<Float>();
+	
+	/**
+	 * The playback indices of each playing note.
+	 */
+	private ArrayList<Integer> _noteIndices = new ArrayList<Integer>();
+	
+	
+	/**
 	 * Constructs an editor object.
 	 * @param soundPlayer The object that is responsible for outputting sound.
 	 */
@@ -61,9 +93,10 @@ public class Player
 	/**
 	 * Starts playing or resumes the song.
 	 */
-	public void play()
+	public void play(EndOfSongCallback callback)
 	{
 		_isPlaying = true;
+		_callback = callback;
 	}
 	
 	/**
@@ -142,7 +175,10 @@ public class Player
 				
 				//If the player has reached the end of the score, stop.
 				if (_currentBeat >= Global.BEATS_PER_SCORE)
+				{
 					stop();
+					_callback.callback();
+				}
 				else
 				{
 					_nextBeatCount -= _secondsPerBeat;
@@ -159,13 +195,66 @@ public class Player
 								int pitch = beat.getNote(i).getPitch();
 								int accidental = _song.getScore(_currentScore).getKeySignature().getAccidental(pitch);
 								
-								_soundPlayer.play(Global.useRecordedSound ? Global.recordedID : Global.pianoID,
+								int j = _soundPlayer.play(Global.useRecordedSound ? Global.recordedID : Global.pianoID,
 											      Global.GRID_TO_PITCH[pitch] + accidental);
+								addNote(j);
 							}
 						}
 					}
 				}
 			}
 		}
+		
+		updateNotePlaying(deltaTime);
 	}
+	
+	/**
+ 	 * Plays a new note and keeps track of it.
+ 	 * @param sampleIndex The index of the played sample.
+ 	 */
+ 	public void addNote(int sampleIndex)
+ 	{
+ 		Log.d("SHUTUP", "lets add index " + _noteTime.size());
+ 		_noteTime.add(0.0f);
+ 		_noteDuration.add(0.2f);
+ 		_noteIndices.add(sampleIndex);
+ 	}
+ 	
+ 	/**
+ 	 * Stops notes if they've been playing for longer than their designated time.
+ 	 */
+ 	public void updateNotePlaying(float deltaTime)
+ 	{
+ 		//Collection of array indices to delete.
+ 		ArrayList<Integer> deletedIndices = new ArrayList<Integer>();
+ 		
+ 		for (int i = 0; i < _noteTime.size(); ++i)
+ 		{
+ 			float time = _noteTime.get(i) + deltaTime;
+ 			
+ 			if (time >= _noteDuration.get(i))
+ 			{
+ 				//Remove note.
+ 				deletedIndices.add(i);
+ 				_soundPlayer.stop(_noteIndices.get(i));
+ 				Log.d("SHUTUP", "lets delete index " + i);
+ 			}
+ 			else
+ 			{
+ 				_noteTime.set(i, time);
+ 			}
+ 		}
+ 		
+ 		int deletedCount = 0;
+ 		//Delete all notes set to delete.
+ 		for (int i : deletedIndices)
+ 		{
+ 			Log.d("SHUTUP", "_noteIndices " + _noteIndices);
+ 			Log.d("SHUTUP", "deleting index " + i);
+ 			_noteTime.remove(i - deletedCount);
+ 			_noteDuration.remove(i - deletedCount);
+ 			_noteIndices.remove(i - deletedCount);
+ 			deletedCount++;
+ 		}
+  	}
 }

@@ -3,7 +3,7 @@ package mcapp;
 /**
  * Class dedicated to storing and maintaining a collection of notes. Several
  * of these appear for each instance of Score.
- * @author Josh, Sean
+ * @author Josh, Sean, Shavarsh
  * 
  */
 public class Beat 
@@ -29,7 +29,7 @@ public class Beat
 	{
 		return _notes;
 	}
-	
+
 	/**
 	 * Accessor for one note.
 	 * @param channel The target channel.
@@ -51,10 +51,27 @@ public class Beat
 			if (_notes[i] != null)
 				return false;
 		}
-		
+
 		return true;
 	}
-	
+
+	/**
+	 * Returns whether or not the entire Beat is full.
+	 * @return True if the Beat has no empty spaces.
+	 */
+	public boolean isFull()
+	{
+		for (int i = 0; i < Global.MAX_POLYPHONY; ++i)
+		{
+			if (_notes[i] == null)
+			{
+				return false;
+			}
+		}
+
+		return true;
+	}
+
 	/**
 	 * Returns whether or not a specific channel in the beat.
 	 * @return True if the channel has no Notes.
@@ -63,7 +80,7 @@ public class Beat
 	{
 		return (_notes[channel] == null);
 	}
-	
+
 
 	/**
 	 * Adds a Note to the next available channel in this Beat.
@@ -83,7 +100,7 @@ public class Beat
 				{
 					if (i == j)
 						continue;
-					
+
 					if (!isEmpty(j) &&
 						_notes[j].getInstrument() == instrumentID &&
 						_notes[j].getPitch() == pitch)
@@ -92,13 +109,13 @@ public class Beat
 						return false;	
 					}
 				}
-				
+
 				//This is a unique note - add it.
 				_notes[i] = new Note(instrumentID, pitch);
 				return true;
 			}
 		}
-		
+
 		//Beat is full.
 		return false;
 	}
@@ -122,16 +139,16 @@ public class Beat
 				return true;
 			}
 		}
-		
+
 		//No note at this pitch.
 		return false;
 	}
-	
+
 	@Override
 	public String toString()
 	{
 		String string = "";
-		
+
 		for (int i = 0; i < Global.MAX_POLYPHONY; ++i)
 		{
 			if (!isEmpty(i))
@@ -139,7 +156,7 @@ public class Beat
 			else
 				string += "-, ";
 		}
-		
+
 		return string;
 	}
 }
