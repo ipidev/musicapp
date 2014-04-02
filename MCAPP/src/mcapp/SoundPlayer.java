@@ -130,8 +130,9 @@ public class SoundPlayer
 	 * @param volume The volume of the sample. This value must be between 0.0
 	 * and 1.0.
 	 * @param panning The panning of the sample. This is unused, so use 0.0.
+	 * @return The index of the newly played sample.
 	 */
-	public void play(int sampleID, int pitch, float volume, float panning)
+	public int play(int sampleID, int pitch, float volume, float panning)
 	{
 		//Calculate the volume to play the sample at.
         AudioManager am = (AudioManager)_activity.getSystemService(Context.AUDIO_SERVICE);
@@ -140,7 +141,7 @@ public class SoundPlayer
         float finalVolume = (currentVolume / maxVolume) * volume;
         
         //Play!!
-        _soundPool.play(sampleID, finalVolume, finalVolume, 1, 0,
+        return _soundPool.play(sampleID, finalVolume, finalVolume, 1, 0,
         				NOTE_FREQUENCIES[pitch + 15]);
 	}
 	
@@ -150,12 +151,22 @@ public class SoundPlayer
 	 * previous call to load()).
 	 * @param pitch The number of semitones above or below middle-C. This value
 	 * must be between -12 (C4) and 12 (C5).
+	 * @return The index of the newly played sample.
 	 */
-	public void play(int sampleID, int pitch)
+	public int play(int sampleID, int pitch)
 	{
-		play(sampleID, pitch, 1.0f, 0.0f);
+		return play(sampleID, pitch, 1.0f, 0.0f);
 	}
 	
+	/**
+	 * Stops the playback of the specified sample.
+	 * @param sampleID The index of the sample retrieved from play().
+	 */
+	public void stop(int sampleID)
+	{
+		_soundPool.stop(sampleID);
+	}
+	 
 	/**
 	 * Unloads a sample with the given ID (which was returned from a previous
 	 * call to load()).

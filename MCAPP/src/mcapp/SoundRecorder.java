@@ -15,6 +15,14 @@ import android.util.Log;
 public class SoundRecorder
 {
 	/**
+ 	 * Interface used for callback function.
+ 	 */
+ 	public interface SoundRecorderCallback
+ 	{
+ 		void callback();
+ 	}
+	
+	/**
 	 * The object that handles sound recording.
 	 */
 	private MediaRecorder _recorder = null;
@@ -25,9 +33,20 @@ public class SoundRecorder
 	private boolean _isRecording = false;
 	
 	/**
+ 	 * How long the sound recording is.
+ 	 */
+ 	private float _timer = 0.0f;
+	
+	/**
 	 * Absolute path of the file that has been recorded to.
 	 */
 	private String _filePath = "";
+	
+	/**
+ 	 * Holds callback object.
+ 	 */
+ 	private SoundRecorderCallback _callback = null;
+ 	
 	
 	public SoundRecorder()
 	{
@@ -67,7 +86,7 @@ public class SoundRecorder
 	 * @param fileName The name of the file. No leading slashes and no
 	 * trailing .3gp, please.
 	 */
-	public void start(String fileName)
+	public void start(String fileName, SoundRecorderCallback callback)
 	{
 		//Throw exception if we're already recording.
 		if (_isRecording)
@@ -97,6 +116,18 @@ public class SoundRecorder
         _isRecording = true;
 	}
 	
+	public void update(float deltaTime)
+ 	{
+ 		if (_isRecording)
+ 		{
+ 			_timer += deltaTime;
+ 			
+ 			if (_timer >= Global.MAX_RECORDING_LENGTH)
+ 				stop();
+ 		}
+ 	}
+	
+	
 	/**
 	 * Stops recording.
 	 */
@@ -111,5 +142,10 @@ public class SoundRecorder
 		_recorder.release();
 		_recorder = null;
 		_isRecording = false;
+		_timer = 0.0f;
+		 		
+ 		if (_callback != null)
+ 			_callback.callback();
+ 		_callback = null;
 	}
 }
