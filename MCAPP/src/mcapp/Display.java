@@ -68,7 +68,7 @@ public class Display extends View
 	
 	Bitmap _score = BitmapFactory.decodeResource(getResources(), R.drawable.score);
 	int _scaledScoreY = (_score.getHeight() * 4 * _scaledNoteHeight) / (_score.getHeight() / 2);
-	Bitmap _scaledScore = getResizedBitmap(_score, _screenWidth, _scaledScoreY, false, false);
+	Bitmap _scaledScore = getResizedBitmap(_score, (int)(_screenWidth * 0.94f), _scaledScoreY, false, false);
 	
 	Bitmap _scaledKey = getResizedBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.key_sol), 0, _scaledScore.getHeight(), true, false);
 	
@@ -119,6 +119,7 @@ public class Display extends View
 	
 	//the indicator of the "screen" currently viewed
 	static int _screenPosition = 0;
+	static int _indicatorScreen = 0;
 	
 	//Flag for note choosing menu
 	static boolean _isNoteChoosingActive = false;
@@ -179,6 +180,18 @@ public class Display extends View
 	public static int getScreen()
 	{
 		return _screenPosition;
+	}
+	
+	//Getter for the screen the indicator is currently in
+	public static int getIndicatorScreen()
+	{
+		return _indicatorScreen;
+	}
+		
+	//Setter for the screen the indicator is currently in
+	public static void setIndicatorScreen(int screen)
+	{
+		_indicatorScreen = screen;
 	}
 	
 	//Getter for the _signatureList
@@ -248,7 +261,7 @@ public class Display extends View
     	
     	//Indicator draw
     	animateIndicator();
-    	if(!(!_isPlaying && _screenPosition != 0))
+    	if(!(!_isPlaying && _screenPosition != 0) && _screenPosition == _indicatorScreen)
     	{
     		indicatorDraw();
     	}
@@ -339,9 +352,12 @@ public class Display extends View
 			    }
 			    else
 			    {
-			    	_notePositions.add(tempPair);		 
-			    	_song.getScore(0).addNote(horPosition - 1 + (4 * _screenPosition),
+			    	if(!_song.getScore(0).getBeat(horPosition - 1 + (4 * _screenPosition)).isFull())
+			    	{
+			    		_notePositions.add(tempPair);		 
+			    		_song.getScore(0).addNote(horPosition - 1 + (4 * _screenPosition),
 			    							  vertPosition - 1, 0);
+			    	}
 			    }			    
 			}		
 			//Choose note length if menu is active
@@ -378,10 +394,17 @@ public class Display extends View
     		position = ( (int)_notePositions.get(i).getM() - _upperDistance ) / _vertStep;
     		
     		//Set bitmap & position
+    		int positionY = _notePositions.get(i).getM() - _scaledNote.getHeight() + _scaledNoteHeight;
+    		
     		if(_notePositions.get(i).getR() != 1)
     		{
     			int noteLength = _notePositions.get(i).getR();
     			String noteName = "note_" + noteLength;
+    			if(position < 8)
+    			{
+    				noteName = "note_" + noteLength + "_flipped";
+    				positionY = _notePositions.get(i).getM();
+    			}    			
     			int resID = getResources().getIdentifier(noteName, "drawable", getContext().getPackageName());
     		    note  = BitmapFactory.decodeResource(getResources(), resID);
     		}
@@ -405,7 +428,7 @@ public class Display extends View
     		}
     		
     		Bitmap scaledNote = getResizedBitmap(note, 0, (int)(_screenHeight / 4), true, false);
-    		int positionY = _notePositions.get(i).getM() - _scaledNote.getHeight() + _scaledNoteHeight;
+    		
     	
     		//Drawing
     		if(i == _selectedNote)
@@ -553,7 +576,7 @@ public class Display extends View
 		}		
 		if(_screenPosition % 2 != 0)
 		{
-			_barX = (_scaledScore.getWidth() - (int)((double)(_scaledScore.getWidth() * 0.46)));
+			_barX = (_scaledScore.getWidth() - (int)((double)(_scaledScore.getWidth() * 0.48)));
 			_barY = _screenCenterY - (int)((double)(_scaledScore.getHeight() * 0.8) / 1.48);
 		}
 		else
@@ -579,8 +602,7 @@ public class Display extends View
 		}
 	}
 	
-	//Method returns resized bitmap
-	
+	//Method returns resized bitmap	
 	public Bitmap getResizedBitmap(Bitmap bm, int newWidth, int newHeight, boolean widthToHeightRatio, boolean heightToWidthRatio)
 	{		 
 		int width = bm.getWidth();		 

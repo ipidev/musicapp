@@ -15,7 +15,7 @@ public class Global
 	/**
 	 * The maximum number of beats permitted for each Score instance.
 	 */
-	public static final int BEATS_PER_SCORE = 16;
+	public static final int BEATS_PER_SCORE = 32;
 	
 	/**
 	 * Allows for conversion from the grid-based placing of notes to the pitches

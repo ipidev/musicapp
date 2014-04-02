@@ -135,7 +135,11 @@ public class MainActivity extends Activity
 			{				
 				_beat -= 4;
 				_multiplier++;
-				Display.scoreNext();
+				if(Display.getIndicatorScreen() == Display.getScreen())
+				{
+					Display.scoreNext();
+				}
+				Display.setIndicatorScreen(Display.getIndicatorScreen() + 1);
 			}
 		}
 		Display.passPlayProgress(_beat, _player.getBeatProgress());
@@ -178,6 +182,7 @@ public class MainActivity extends Activity
 		_multiplier = 0;
 		Display.passPlayerStatus(false);
 		Display.resetIndicatorPosition();
+		Display.setIndicatorScreen(0);
 		
 		Button button = (Button)findViewById(R.id.playButton);
 		button.setText(R.string.button_play);		

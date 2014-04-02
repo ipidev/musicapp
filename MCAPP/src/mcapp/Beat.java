@@ -3,7 +3,7 @@ package mcapp;
 /**
  * Class dedicated to storing and maintaining a collection of notes. Several
  * of these appear for each instance of Score.
- * @author Josh, Sean
+ * @author Josh, Sean, Shavarsh
  * 
  */
 public class Beat 
@@ -50,6 +50,23 @@ public class Beat
 		{
 			if (_notes[i] != null)
 				return false;
+		}
+		
+		return true;
+	}
+	
+	/**
+	 * Returns whether or not the entire Beat is full.
+	 * @return True if the Beat has no empty spaces.
+	 */
+	public boolean isFull()
+	{
+		for (int i = 0; i < Global.MAX_POLYPHONY; ++i)
+		{
+			if (_notes[i] == null)
+			{
+				return false;
+			}
 		}
 		
 		return true;
