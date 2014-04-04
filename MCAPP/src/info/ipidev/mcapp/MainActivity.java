@@ -1,23 +1,40 @@
 package info.ipidev.mcapp;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import mcapp.Beat;
 import mcapp.Display;
 import mcapp.Global;
 import mcapp.KeySignature;
+import mcapp.Note;
 import mcapp.Player;
+import mcapp.Score;
 import mcapp.Song;
 import mcapp.SoundPlayer;
 import mcapp.SoundRecorder;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.res.Configuration;
 import android.os.Bundle;
+import android.os.Environment;
+import android.support.v4.app.ActionBarDrawerToggle;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
 import android.view.Menu;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.ListView;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 //import mcapp.Timer;
@@ -53,6 +70,13 @@ public class MainActivity extends Activity
 	 * Responsible for recording and saving new sounds.
 	 */
 	private SoundRecorder _soundRecorder = null;
+	
+	/**
+	 * Left drawer stuff.
+	 */
+	private DrawerLayout _drawerLayout;
+    private ListView _drawerList;
+    private ActionBarDrawerToggle _drawerToggle;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -103,10 +127,50 @@ public class MainActivity extends Activity
 			}
 		});
 		
+		//Set up drawer.
+		_drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+		_drawerList = (ListView) findViewById(R.id.left_drawer);
 		
+		//Temporary array.
+		String[] tempStrings = {"hello", "poop", "bumhole", "does this work"};
 		
-	}
+		// set a custom shadow that overlays the main content when the drawer opens
+        _drawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
+        // set up the drawer's list view with items and click listener
+        _drawerList.setAdapter(new ArrayAdapter<String>(this,
+                R.layout.drawer_list_item, tempStrings));
+        _drawerList.setOnItemClickListener(new DrawerItemClickListener());
+        
+        //Set up drawer events I think??
+        _drawerToggle = new ActionBarDrawerToggle(
+                this,                  /* host Activity */
+                _drawerLayout,         /* DrawerLayout object */
+                R.drawable.ic_drawer,  /* nav drawer image to replace 'Up' caret */
+                R.string.drawer_open,  /* "open drawer" description for accessibility */
+                R.string.drawer_close  /* "close drawer" description for accessibility */
+                ) {
+            public void onDrawerClosed(View view)
+            {
+            	//Reset action bar title. We're not using this.
+                //getActionBar().setTitle(mTitle);
+                //invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+            }
 
+            public void onDrawerOpened(View drawerView)
+            {
+            	//Reset action bar title. We're not using this.
+                //getActionBar().setTitle(mDrawerTitle);
+                //invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+            }
+        };
+        _drawerLayout.setDrawerListener(_drawerToggle);
+
+        if (savedInstanceState == null)
+        {
+            selectItem(0);
+        }
+	}
+	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu)
 	{
@@ -115,12 +179,67 @@ public class MainActivity extends Activity
 		return true;
 	}
 	
+	/* Called whenever we call invalidateOptionsMenu() */
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        //This is where you can hide things on the action bar if needbe.
+        boolean drawerOpen = _drawerLayout.isDrawerOpen(_drawerList);
+        return super.onPrepareOptionsMenu(menu);
+    }
+    
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        // Sync the toggle state after onRestoreInstanceState has occurred.
+        _drawerToggle.syncState();
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        // Pass any configuration change to the drawer toggls
+        _drawerToggle.onConfigurationChanged(newConfig);
+    }
+	
+	/**
+	 *  The click listener for ListView in the navigation drawer. Basically,
+	 *  a callback class.
+	 */
+	private class DrawerItemClickListener implements ListView.OnItemClickListener
+	{
+	    @Override
+	    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+	        selectItem(position);
+	    }
+	}
+	
+	/**
+	 * Callback function for when an item is chosen from the drawer.
+	 * @param position
+	 */
+	private void selectItem(int position)
+	{
+		new AlertDialog.Builder(this)
+			.setTitle("Woah!!")
+		    .setMessage("You pressed " + position)
+		    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener()
+		    {
+		        public void onClick(DialogInterface dialog, int which)
+		        { 
+		            //Something
+		        }
+		    })
+		    .show();
+	}
+	
 	/**
 	 * This is the method called by java.util.Timer.
 	 */
 	public void run()
 	{
 		_player.update(0.1f);
+		_soundRecorder.update(0.1f);
+		
 		//Calculations for the indicator position.
 		if(_beat + 4 * _multiplier != (int)_player.getCurrentBeat())
 		{			
@@ -129,7 +248,10 @@ public class MainActivity extends Activity
 			{				
 				_beat -= 4;
 				_multiplier++;
-				Display.scoreNext();
+				if (Display.getIndicatorScreen() == Display.getScreen())
+					Display.scoreNext();
+				
+				Display.setIndicatorScreen(Display.getIndicatorScreen() + 1);
 			}
 		}
 		Display.passPlayProgress(_beat, _player.getBeatProgress());
@@ -143,8 +265,12 @@ public class MainActivity extends Activity
 	{
 		if (!_player.isPlaying() && !_soundRecorder.isRecording())
 		{
+			//Make callback function object.
+			EndOfSongCallback endOfSong = new EndOfSongCallback(this);
+		
 			//Start playing.
-			_player.play();
+			_player.play(endOfSong);
+			
 			Display.passPlayerStatus(true);
 			
 			Button button = (Button)view;
@@ -166,12 +292,43 @@ public class MainActivity extends Activity
 	 */
 	public void onStopButton(View view)
 	{
+		sharedStopStuff();
+		 		
+ 		Button button = (Button)findViewById(R.id.playButton);
+ 		button.setText(R.string.button_play);		
+ 	}
+ 	
+ 	/**
+ 	 * Callback function for when the song ends.
+ 	 */
+ 	public void endOfSong()
+ 	{
+ 		sharedStopStuff();
+ 		
+ 		//Need to jump back to the UI thread in order to edit the button.
+ 		runOnUiThread(new Runnable()
+ 		{
+ 			@Override
+ 			public void run()
+ 			{
+ 				Button button = (Button)findViewById(R.id.playButton);
+ 				button.setText(R.string.button_play);
+ 			}
+ 		});
+ 	}
+ 	
+ 	/**
+ 	 * Stuff shared by both the stop button function and the end of song callback.
+ 	 */
+ 	public void sharedStopStuff()
+ 	{
 		//Stop.
 		_player.stop();
 		_beat = -1;
 		_multiplier = 0;
 		Display.passPlayerStatus(false);
 		Display.resetIndicatorPosition();
+		Display.setIndicatorScreen(0);
 		
 		Button button = (Button)findViewById(R.id.playButton);
 		button.setText(R.string.button_play);		
@@ -185,8 +342,11 @@ public class MainActivity extends Activity
 	{
 		if (!_soundRecorder.isRecording())
 		{
+			//Make callback function object.
+			StopRecording stopRecording = new StopRecording(this);
+			
 			//Start recording.
-			_soundRecorder.start("temp");
+			_soundRecorder.start("temp", stopRecording);
 			_player.stop();
 			
 			Button button = (Button)view;
@@ -211,6 +371,26 @@ public class MainActivity extends Activity
 			Global.recordedID = _soundPlayer.load(_soundRecorder.getFilePath());
 		}
 	}
+	
+	/**
+	 * Changes the record button and stuff.
+	 */
+	public void stopRecording()
+ 	{
+ 		//Need to jump back to the UI thread in order to edit the button.
+ 		runOnUiThread(new Runnable()
+ 		{
+ 			@Override
+ 			public void run()
+ 			{
+ 				Button button = (Button)findViewById(R.id.recordButton);
+ 				button.setText(R.string.button_startRecording);
+ 			}
+ 		});
+ 		
+ 		//Load the new sample.
+ 		Global.recordedID = _soundPlayer.load(_soundRecorder.getFilePath());
+ 	}
 	
 	/**
 	 * Event called when the use recorded sound checkbox is clicked.
@@ -330,5 +510,42 @@ class Updater extends TimerTask
 	public void run()
 	{
 		_mainActivity.run();
+	}
+}
+
+
+/**
+ *	Callback class for finished recording.
+ */
+class StopRecording implements SoundRecorder.SoundRecorderCallback
+{
+	MainActivity _mainActivity;
+	
+	public StopRecording(MainActivity mainActivity)
+	{
+		_mainActivity = mainActivity;
+	}
+	
+	public void callback()
+	{
+		_mainActivity.stopRecording();
+	}
+}
+
+/**
+* Callback class for end of song.
+*/
+class EndOfSongCallback implements Player.EndOfSongCallback
+{
+	MainActivity _mainActivity;
+	
+	public EndOfSongCallback(MainActivity mainActivity)
+	{
+		_mainActivity = mainActivity;
+	}
+	
+	public void callback()
+	{
+		_mainActivity.endOfSong();
 	}
 }
