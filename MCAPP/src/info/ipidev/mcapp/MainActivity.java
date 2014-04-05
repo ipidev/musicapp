@@ -85,6 +85,97 @@ public class MainActivity extends Activity
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		
+		//Create fileDirector if loaded on first attempt
+		File folder = new File(Environment.getExternalStorageDirectory() +File.separator + "swifTone");
+
+		if (!folder.exists()) { //Make Directory if it does not exist
+
+			Global.firstLoadTime = true;
+
+			folder.mkdir();
+		}
+
+		if (Global.firstLoadTime = true) //Initial Load Load
+		{
+
+			Global.fileDirectory = Environment.getExternalStorageDirectory() +File.separator + "swifTone";
+
+			//Export Stream
+			byte[] fileDir = Global.fileDirectory.getBytes();
+
+			File settings = new File(Global.fileDirectory);
+
+			try
+			{
+				FileOutputStream fileOut = new FileOutputStream(settings);
+				ObjectOutputStream out = new ObjectOutputStream(fileOut);
+
+				//Use this to test the system output to see if data is passing out.
+				//System.out.println(Global.fileDirectory);
+				//System.out.println(settings.getPath());
+
+				//Outputs Byte Information
+				out.write('#');
+				out.write(fileDir);
+				out.write('#');
+				out.close();
+
+				//Delete Instances
+				fileDir = null;
+
+				fileOut.close();
+			}
+			catch(IOException i)
+			{
+				i.printStackTrace();
+			}
+		}
+		else
+		{
+			//Creates File Path for Song
+			String _filePath = Environment.getExternalStorageDirectory() +File.separator + "swifTone";
+			_filePath += "/settings.txt";
+
+			File file = new File(_filePath);
+			FileInputStream fin = null;
+
+			try
+			{
+				// create FileInputStream object
+		        fin = new FileInputStream(file);
+		        byte fileContent[] = new byte[(int)file.length()];
+
+		        // Reads up to certain bytes of data from this input stream into an array of bytes.
+		        fin.read(fileContent);
+
+		        //create string from byte array
+		        String s = new String(fileContent);
+		        System.out.println("File content: " + s);
+		    }
+		    catch (FileNotFoundException e)
+		    {
+		    	System.out.println("File not found" + e);
+		    }
+		    catch (IOException ioe)
+		    {
+		        System.out.println("Exception while reading file " + ioe);
+		    }
+		    finally
+		    {
+		        // close the streams using close method
+		        try
+		        {
+		            if (fin != null)
+		                fin.close();
+		        }
+		        catch (IOException ioe)
+		        {
+		            System.out.println("Error while closing stream: " + ioe);
+		        }
+		    }
+
+		}
+		
 		//Set up sound player and load the sample.
 		_soundPlayer = new SoundPlayer(this);
 		Global.pianoID = _soundPlayer.load(R.raw.piano);
@@ -149,14 +240,16 @@ public class MainActivity extends Activity
                 R.string.drawer_open,  /* "open drawer" description for accessibility */
                 R.string.drawer_close  /* "close drawer" description for accessibility */
                 ) {
-            public void onDrawerClosed(View view)
+            @Override 
+			public void onDrawerClosed(View view)
             {
             	//Reset action bar title. We're not using this.
                 //getActionBar().setTitle(mTitle);
                 //invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
             }
 
-            public void onDrawerOpened(View drawerView)
+            @Override
+			public void onDrawerOpened(View drawerView)
             {
             	//Reset action bar title. We're not using this.
                 //getActionBar().setTitle(mDrawerTitle);
@@ -224,7 +317,8 @@ public class MainActivity extends Activity
 		    .setMessage("You pressed " + position)
 		    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener()
 		    {
-		        public void onClick(DialogInterface dialog, int which)
+		        @Override
+				public void onClick(DialogInterface dialog, int which)
 		        { 
 		            //Something
 		        }
@@ -446,6 +540,7 @@ public class MainActivity extends Activity
 	    .setTitle("Choose signature")
 	    .setItems(Display.getSignatures(), new DialogInterface.OnClickListener()
 	    {
+			@Override
 			public void onClick(DialogInterface dialog, int which)
 			{
 				if(!(which == 1 || which == 9))
@@ -507,6 +602,7 @@ class Updater extends TimerTask
 		_mainActivity = mainActivity;
 	}
 	
+	@Override
 	public void run()
 	{
 		_mainActivity.run();
@@ -526,6 +622,7 @@ class StopRecording implements SoundRecorder.SoundRecorderCallback
 		_mainActivity = mainActivity;
 	}
 	
+	@Override
 	public void callback()
 	{
 		_mainActivity.stopRecording();
@@ -544,6 +641,7 @@ class EndOfSongCallback implements Player.EndOfSongCallback
 		_mainActivity = mainActivity;
 	}
 	
+	@Override
 	public void callback()
 	{
 		_mainActivity.endOfSong();

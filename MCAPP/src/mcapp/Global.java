@@ -55,9 +55,15 @@ public class Global
 	public static boolean useRecordedSound = false;
 	
 	/**
-	 * Check for first time app logins
+	 * Check for first time application login
 	 */
 	public static boolean firstLoadTime = false;
+	
+	/**
+	 * Application Directory
+	 */
+	
+	public static String fileDirectory = "default";
 	
 	private Global()
 	{

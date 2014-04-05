@@ -8,7 +8,7 @@ import android.os.Environment;
 
 /**
  * Exports songs.
- * @author Sean
+ * @author Josh
  *
  */
 public class SongExporter
@@ -21,7 +21,7 @@ public class SongExporter
 	public static void songExport(String fileName, Song song)
 	{
 		//Creates File Path for Song
-		String _filePath = Environment.getExternalStorageDirectory().getAbsolutePath();
+		String _filePath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/swifTone";
 		_filePath += "/" + fileName + ".txt";
 
 		//Current Instance of Song
