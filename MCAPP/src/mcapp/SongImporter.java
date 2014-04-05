@@ -9,7 +9,7 @@ import android.os.Environment;
 
 /**
  * Imports songs.
- * @author Sean
+ * @author Josh
  *
  */
 public class SongImporter
@@ -64,8 +64,6 @@ public class SongImporter
 	            System.out.println("Error while closing stream: " + ioe);
 	        }
 	    }
-
-		Score tScore = new Score();
 
 		return tSong;
 	}
