@@ -36,56 +36,64 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int activity_vertical_margin=0x7f070001;
     }
     public static final class drawable {
-        public static final int bar=0x7f020000;
-        public static final int button_bar_gradient=0x7f020001;
-        public static final int button_close=0x7f020002;
-        public static final int drawer_shadow=0x7f020003;
-        public static final int flat=0x7f020004;
-        public static final int ic_drawer=0x7f020005;
-        public static final int ic_launcher=0x7f020006;
-        public static final int indicator=0x7f020007;
-        public static final int key_sol=0x7f020008;
-        public static final int note=0x7f020009;
-        public static final int note_16=0x7f02000a;
-        public static final int note_16_flipped=0x7f02000b;
-        public static final int note_2=0x7f02000c;
-        public static final int note_2_flipped=0x7f02000d;
-        public static final int note_32=0x7f02000e;
-        public static final int note_32_flipped=0x7f02000f;
-        public static final int note_4=0x7f020010;
-        public static final int note_4_flipped=0x7f020011;
-        public static final int note_64=0x7f020012;
-        public static final int note_64_flipped=0x7f020013;
-        public static final int note_8=0x7f020014;
-        public static final int note_8_flipped=0x7f020015;
-        public static final int note_bottom=0x7f020016;
-        public static final int note_crossed=0x7f020017;
-        public static final int note_selection=0x7f020018;
-        public static final int note_top=0x7f020019;
-        public static final int score=0x7f02001a;
-        public static final int sharp=0x7f02001b;
+        public static final int arrow_back=0x7f020000;
+        public static final int arrow_next=0x7f020001;
+        public static final int bar=0x7f020002;
+        public static final int button_bar_gradient=0x7f020003;
+        public static final int button_close=0x7f020004;
+        public static final int drawer_shadow=0x7f020005;
+        public static final int flat=0x7f020006;
+        public static final int help_image=0x7f020007;
+        public static final int ic_drawer=0x7f020008;
+        public static final int ic_launcher=0x7f020009;
+        public static final int ic_menu_changelength=0x7f02000a;
+        public static final int ic_menu_changesig=0x7f02000b;
+        public static final int ic_menu_help=0x7f02000c;
+        public static final int ic_menu_pause=0x7f02000d;
+        public static final int ic_menu_pencil=0x7f02000e;
+        public static final int ic_menu_play=0x7f02000f;
+        public static final int ic_menu_stop=0x7f020010;
+        public static final int indicator=0x7f020011;
+        public static final int key_sol=0x7f020012;
+        public static final int note=0x7f020013;
+        public static final int note_16=0x7f020014;
+        public static final int note_16_flipped=0x7f020015;
+        public static final int note_2=0x7f020016;
+        public static final int note_2_flipped=0x7f020017;
+        public static final int note_32=0x7f020018;
+        public static final int note_32_flipped=0x7f020019;
+        public static final int note_4=0x7f02001a;
+        public static final int note_4_flipped=0x7f02001b;
+        public static final int note_64=0x7f02001c;
+        public static final int note_64_flipped=0x7f02001d;
+        public static final int note_8=0x7f02001e;
+        public static final int note_8_flipped=0x7f02001f;
+        public static final int note_bottom=0x7f020020;
+        public static final int note_crossed=0x7f020021;
+        public static final int note_selection=0x7f020022;
+        public static final int note_top=0x7f020023;
+        public static final int score=0x7f020024;
+        public static final int sharp=0x7f020025;
     }
     public static final class id {
-        public static final int action_export=0x7f0b0013;
-        public static final int action_import=0x7f0b0012;
-        public static final int action_settings=0x7f0b0011;
-        public static final int bpmBar=0x7f0b0009;
-        public static final int changeNoteLength=0x7f0b000d;
-        public static final int checkBox1=0x7f0b0007;
-        public static final int clear=0x7f0b000c;
-        public static final int content_frame=0x7f0b000f;
+        public static final int action_about=0x7f0b0011;
+        public static final int action_changeLength=0x7f0b000f;
+        public static final int action_help=0x7f0b0010;
+        public static final int action_new=0x7f0b000e;
+        public static final int bpmBar=0x7f0b000a;
+        public static final int bpmLabel=0x7f0b000b;
         public static final int display=0x7f0b0004;
         public static final int drawer_layout=0x7f0b0003;
         public static final int dummy_button=0x7f0b0002;
+        public static final int eraser=0x7f0b0008;
         public static final int fullscreen_content=0x7f0b0000;
         public static final int fullscreen_content_controls=0x7f0b0001;
-        public static final int left_drawer=0x7f0b0010;
-        public static final int nextScore=0x7f0b000b;
-        public static final int pickSignature=0x7f0b000e;
-        public static final int playButton=0x7f0b0006;
-        public static final int prevScore=0x7f0b000a;
-        public static final int recordButton=0x7f0b0005;
-        public static final int stopButton=0x7f0b0008;
+        public static final int help_image=0x7f0b000c;
+        public static final int left_drawer=0x7f0b000d;
+        public static final int playButton=0x7f0b0005;
+        public static final int spacer1=0x7f0b0007;
+        public static final int spacer2=0x7f0b0009;
+        public static final int stopButton=0x7f0b0006;
     }
     public static final class layout {
         public static final int activity_fullscreen=0x7f030000;
@@ -96,33 +104,71 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int main=0x7f0a0000;
     }
     public static final class raw {
-        public static final int piano=0x7f050000;
+        public static final int acoustic_guitar=0x7f050000;
+        public static final int cat=0x7f050001;
+        public static final int electric_bass=0x7f050002;
+        public static final int electric_piano=0x7f050003;
+        public static final int eraser1=0x7f050004;
+        public static final int eraser2=0x7f050005;
+        public static final int flute=0x7f050006;
+        public static final int grand_piano=0x7f050007;
+        public static final int pizzicato=0x7f050008;
+        public static final int steel_drum=0x7f050009;
+        public static final int trumpet=0x7f05000a;
+        public static final int vibraphone=0x7f05000b;
+        public static final int violin=0x7f05000c;
+        public static final int vocal_doo=0x7f05000d;
     }
     public static final class string {
+        public static final int action_about=0x7f080009;
+        public static final int action_changeLength=0x7f080007;
+        public static final int action_changeSignature=0x7f080006;
         public static final int action_export=0x7f080005;
+        public static final int action_help=0x7f08000a;
         public static final int action_import=0x7f080004;
         /**  Sound test activity. 
          */
-        public static final int action_settings=0x7f080003;
+        public static final int action_new=0x7f080003;
+        public static final int action_settings=0x7f080008;
         /**  Fullscreen activity. 
          */
         public static final int app_name=0x7f080000;
-        public static final int button_changeNoteLength=0x7f080010;
-        public static final int button_changeSignature=0x7f080011;
-        public static final int button_clear=0x7f08000f;
-        public static final int button_next=0x7f08000e;
-        public static final int button_pause=0x7f08000b;
-        public static final int button_play=0x7f08000a;
-        public static final int button_previous=0x7f08000d;
-        public static final int button_startRecording=0x7f080008;
-        public static final int button_stop=0x7f08000c;
-        public static final int button_stopRecording=0x7f080009;
-        public static final int checkBox_useRecording=0x7f080007;
-        public static final int drawer_close=0x7f080013;
-        public static final int drawer_open=0x7f080012;
+        public static final int button_eraser=0x7f080012;
+        public static final int button_pause=0x7f080010;
+        public static final int button_play=0x7f08000f;
+        public static final int button_startRecording=0x7f08000d;
+        public static final int button_stop=0x7f080011;
+        public static final int button_stopRecording=0x7f08000e;
+        public static final int checkBox_useRecording=0x7f08000c;
+        public static final int drawer_close=0x7f080017;
+        public static final int drawer_open=0x7f080016;
         public static final int dummy_button=0x7f080001;
         public static final int dummy_content=0x7f080002;
-        public static final int title_activity_main=0x7f080006;
+        public static final int help_description=0x7f08002c;
+        public static final int inst_acoustic_guitar=0x7f080021;
+        public static final int inst_cat=0x7f080029;
+        public static final int inst_electric_bass=0x7f080022;
+        public static final int inst_electric_piano=0x7f08001f;
+        public static final int inst_flute=0x7f080027;
+        public static final int inst_grand_piano=0x7f08001e;
+        public static final int inst_new_recording=0x7f08002b;
+        public static final int inst_pizzicato=0x7f080024;
+        public static final int inst_recorded_sound=0x7f08002a;
+        public static final int inst_steel_drum=0x7f080028;
+        public static final int inst_trumpet=0x7f080026;
+        public static final int inst_vibraphone=0x7f080020;
+        public static final int inst_violin=0x7f080023;
+        public static final int inst_vocal_doos=0x7f080025;
+        public static final int label_blank=0x7f080013;
+        public static final int label_bpm=0x7f080014;
+        public static final int label_bpm_default=0x7f080015;
+        public static final int popup_newText=0x7f080019;
+        public static final int popup_newTitle=0x7f080018;
+        public static final int popup_recording_ready=0x7f08001b;
+        public static final int popup_recording_recording=0x7f08001c;
+        public static final int popup_recording_stop=0x7f08001d;
+        public static final int popup_recording_title=0x7f08001a;
+        public static final int title_activity_main=0x7f08000b;
     }
     public static final class style {
         /** 

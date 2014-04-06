@@ -9,7 +9,7 @@ import android.os.Environment;
 
 /**
  * Imports songs.
- * @author Sean
+ * @author Josh
  *
  */
 public class SongImporter
@@ -24,7 +24,7 @@ public class SongImporter
 		Song tSong = new Song();
 
 		//Creates File Path for Song
-		String _filePath = Environment.getExternalStorageDirectory().getAbsolutePath();
+		String _filePath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/swifTone";
 		_filePath += "/" + fileName + ".txt";
 
 		File file = new File(_filePath);

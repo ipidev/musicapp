@@ -48,11 +48,16 @@ public class SoundPlayer
 		/* C 6 */ 2.00000f, 2.11893f, 2.24493f, 2.37842f
 	};
 	
-	
 	/**
 	 * The list of IDs to samples that are currently loaded into the SoundPool.
 	 */
 	private LinkedList<Integer> _loadedSamples;
+	
+	/**
+	 * The sample ID of sounds that are being demoed (e.g. not part of the
+	 * actual song, but rather the interface) so that they can be stopped.
+	 */
+	private int _demoSampleID;
 	
 	
 	/**
@@ -125,8 +130,7 @@ public class SoundPlayer
 	 * Plays a sample with the given settings.
 	 * @param sampleID The ID of the sample to play (which was returned from a
 	 * previous call to load()).
-	 * @param pitch The number of semitones above or below middle-C. This value
-	 * must be between -12 (C4) and 12 (C5).
+	 * @param pitch The MIDI value of the note to play.
 	 * @param volume The volume of the sample. This value must be between 0.0
 	 * and 1.0.
 	 * @param panning The panning of the sample. This is unused, so use 0.0.
@@ -142,15 +146,14 @@ public class SoundPlayer
         
         //Play!!
         return _soundPool.play(sampleID, finalVolume, finalVolume, 1, 0,
-        				NOTE_FREQUENCIES[pitch + 15]);
+        				NOTE_FREQUENCIES[(pitch - Global.MIDDLE_C) + 16]);
 	}
 	
 	/**
 	 * Plays a sample with the given settings.
 	 * @param sampleID The ID of the sample to play (which was returned from a
 	 * previous call to load()).
-	 * @param pitch The number of semitones above or below middle-C. This value
-	 * must be between -12 (C4) and 12 (C5).
+	 * @param pitch The MIDI value of the note to play.
 	 * @return The index of the newly played sample.
 	 */
 	public int play(int sampleID, int pitch)
@@ -167,6 +170,29 @@ public class SoundPlayer
 		_soundPool.stop(sampleID);
 	}
 	 
+	/**
+	 * Demos a sample with the given settings.
+	 * @param sampleID The ID of the sample to play (which was returned from a
+	 * previous call to load()).
+	 * @param pitch The MIDI value of the note to play.
+	 */
+	public void demo(int sampleID, int pitch)
+	{
+		stop(_demoSampleID);
+		_demoSampleID = play(sampleID, pitch);
+	}
+	
+	/**
+	 * Demos a sample.
+	 * @param sampleID The ID of the sample to play (which was returned from a
+	 * previous call to load()).
+	 */
+	public void demo(int sampleID)
+	{
+		stop(_demoSampleID);
+		_demoSampleID = play(sampleID, Global.MIDDLE_C);
+	}
+	
 	/**
 	 * Unloads a sample with the given ID (which was returned from a previous
 	 * call to load()).

@@ -1,28 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Fullscreen activity. -->
-    <string name="app_name">MCAPP</string>
+    <string name="app_name">SwifTone</string>
     <string name="dummy_button">Dummy Button</string>
     <string name="dummy_content">DUMMY\nCONTENT</string>
     
     <!-- Sound test activity. -->
+    <string name="action_new">New</string>
+    <string name="action_import">Load</string>
+    <string name="action_export">Save</string>
+    <string name="action_changeSignature">Key signature</string>
+    <string name="action_changeLength">Note length</string>
     <string name="action_settings">Settings</string>
-    <string name="action_import">Import</string>
-    <string name="action_export">Export</string>
+    <string name="action_about">About</string>
+    <string name="action_help">Help</string>
     
-    <string name="title_activity_main">MCAPP Sound Test</string>
+    <string name="title_activity_main">SwifTone</string>
 	<string name="checkBox_useRecording">Use recorded sound.</string>
 	<string name="button_startRecording">Record</string>
 	<string name="button_stopRecording">Stop</string>
 	<string name="button_play">Play</string>
 	<string name="button_pause">Pause</string>
 	<string name="button_stop">Stop</string>
-	<string name="button_previous">Back</string>
-	<string name="button_next">Next</string>
-	<string name="button_clear">Clear</string>
-	<string name="button_changeNoteLength">Change length</string>
-	<string name="button_changeSignature">Change signature</string>
+	<string name="button_eraser">Eraser</string>
+	
+	<string name="label_blank"></string>
+	<string name="label_bpm">BPM</string>
+	<string name="label_bpm_default">120 BPM</string>
 	
     <string name="drawer_open">Open navigation drawer</string>
     <string name="drawer_close">Close navigation drawer</string>
+    
+    <string name="popup_newTitle">New song</string>
+    <string name="popup_newText">Do you want to clear the current song?</string>
+    <string name="popup_recording_title">Recording new sound</string>
+    <string name="popup_recording_ready">Ready&#8230;?</string>
+    <string name="popup_recording_recording">Recording&#8230;</string>
+    <string name="popup_recording_stop">Stop</string>
+    
+    <string name="inst_grand_piano">Grand Piano</string>
+    <string name="inst_electric_piano">Electric Piano</string>
+    <string name="inst_vibraphone">Vibraphone</string>
+    <string name="inst_acoustic_guitar">Acoustic Guitar</string>
+    <string name="inst_electric_bass">Electric Bass</string>
+    <string name="inst_violin">Violin</string>
+    <string name="inst_pizzicato">Pizzicato</string>
+    <string name="inst_vocal_doos">Vocal Doos</string>
+    <string name="inst_trumpet">Trumpet</string>
+    <string name="inst_flute">Flute</string>
+    <string name="inst_steel_drum">Steel Drum</string>
+    <string name="inst_cat">Cat</string>
+    <string name="inst_recorded_sound">My Sound #</string>
+    <string name="inst_new_recording">Record new sound</string>
+    
+    <string name="help_description">Touch the score to get started.</string>
 </resources>

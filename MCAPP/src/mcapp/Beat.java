@@ -39,6 +39,23 @@ public class Beat
 	{
 		return _notes[channel];
 	}
+	
+	/**
+	 * Accessor for one note.
+	 * @param channel The target pitch of the note
+	 * @return The note in this channel, or null if there is none.
+	 */
+	public Note getNoteAtPitch(int pitch)
+	{
+		for (int i = 0; i < Global.MAX_POLYPHONY; i++)
+		{
+			if (!isEmpty(i) && _notes[i].getPitch() == pitch)
+				return _notes[i];	
+		}
+		
+		return null;
+	}
+
 
 	/**
 	 * Returns whether or not the entire Beat is empty.

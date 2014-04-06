@@ -47,6 +47,8 @@ public class Player
 	 */
 	private float _secondsPerBeat = 0.4f;
 	
+	private int _beatsPerMinute = 120;
+	
 	/**
 	 * Increases by delta time until it reaches _secondsPerBeat, and 
 	 */
@@ -56,7 +58,6 @@ public class Player
 	 * Whether or not the player is playing.
 	 */
 	private boolean _isPlaying = false;
-	
 	
 	/**
 	 * Holds callback function for when a song reaches the end.
@@ -78,15 +79,21 @@ public class Player
 	 */
 	private ArrayList<Integer> _noteIndices = new ArrayList<Integer>();
 	
+	/**
+	 * The sound ID of the chosen instrument.
+	 */
+	private int _soundID;
+	
 	
 	/**
 	 * Constructs an editor object.
 	 * @param soundPlayer The object that is responsible for outputting sound.
 	 */
-	public Player(Song song, SoundPlayer soundPlayer)
+	public Player(Song song, SoundPlayer soundPlayer, int soundID)
 	{
 		_song = song;
 		_soundPlayer = soundPlayer;
+		_soundID = soundID;
 	}
 	
 	
@@ -146,6 +153,29 @@ public class Player
 	}
 	
 	/**
+	 * Gets the length of time one beat takes.
+	 * @return The current value of beats per second.
+	 */
+	public float getSecondsPerBeat()
+	{
+		return _secondsPerBeat;
+	}
+	
+	public int getBpm()
+	{
+		return _beatsPerMinute;
+	}
+	
+	/**
+	 * Accessor for the current instrument.
+	 * @return The sound ID of the current instrument.
+	 */
+	public int getInstrument()
+	{
+		return _soundID;
+	}
+	
+	/**
 	 * Sets the BPM (beats per minute) of the song.
 	 * @param bpm The new BPM.
 	 */
@@ -155,6 +185,16 @@ public class Player
 		_secondsPerBeat = 1.0f / (bpm / 60.0f);
 		
 		//Also set the song BPM (so it can be saved)
+		_beatsPerMinute = bpm;
+	}
+	
+	/**
+	 * Sets the instrument to play notes with.
+	 * @param soundID The ID of the sound to play.
+	 */
+	public void setInstrument(int soundID)
+	{
+		_soundID = soundID;
 	}
 	
 	/**
@@ -192,12 +232,12 @@ public class Player
 						{
 							if (!beat.isEmpty(i))
 							{
-								int pitch = beat.getNote(i).getPitch();
+								Note note = beat.getNote(i);
+								int pitch = note.getPitch();
 								int accidental = _song.getScore(_currentScore).getKeySignature().getAccidental(pitch);
 								
-								int j = _soundPlayer.play(Global.useRecordedSound ? Global.recordedID : Global.pianoID,
-											      Global.GRID_TO_PITCH[pitch] + accidental);
-								addNote(j);
+								int sampleID = _soundPlayer.play(_soundID, Global.GRID_TO_PITCH[pitch] + accidental);
+								addNote(sampleID, note);
 							}
 						}
 					}
@@ -212,11 +252,11 @@ public class Player
  	 * Plays a new note and keeps track of it.
  	 * @param sampleIndex The index of the played sample.
  	 */
- 	public void addNote(int sampleIndex)
+ 	public void addNote(int sampleIndex, Note note)
  	{
  		Log.d("SHUTUP", "lets add index " + _noteTime.size());
  		_noteTime.add(0.0f);
- 		_noteDuration.add(0.2f);
+ 		_noteDuration.add((_secondsPerBeat * 8.0f) * note.getLength());
  		_noteIndices.add(sampleIndex);
  	}
  	

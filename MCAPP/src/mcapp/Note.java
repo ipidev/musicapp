@@ -7,11 +7,13 @@ package mcapp;
  */
 public class Note
 {
-	//The note does not need to store a sample ID - the relationship between
-	//the instrument and its sample is done later on (by the Player).
-	//private int _sampleID;
 	private int _instrumentID;
 	private int _pitch;
+	
+	/**
+	 * The length of the note (as a ratio of one bar).
+	 */
+	private float _length = 1.0f;
 
 	/**
 	 * Creates a new note.
@@ -23,6 +25,14 @@ public class Note
 	{
 		_instrumentID = instrumentID;
 		_pitch = pitch;
+		_length = 1.0f;
+	}
+	
+	public Note(int instrumentID, int pitch, float length)
+	{
+		_instrumentID = instrumentID;
+		_pitch = pitch;
+		_length = length;
 	}
 	
 	/**
@@ -42,5 +52,15 @@ public class Note
 	public int getPitch()
 	{
 		return _pitch;
+	}
+	
+	public float getLength()
+	{
+		return _length;
+	}
+	
+	public void setLength(float length)
+	{
+		_length = length;
 	}
 }

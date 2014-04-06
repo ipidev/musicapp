@@ -73,6 +73,10 @@ public class Display extends View
 	Bitmap _scaledKey = getResizedBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.key_sol), 0, _scaledScore.getHeight(), true, false);
 
 	Bitmap _scaledBar = getResizedBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.bar), 0, _scaledScore.getHeight() / 2, true, false);
+	
+	Bitmap _scaledArrowNext = getResizedBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.arrow_next), _scaledNote.getWidth() / 2, 4 * _scaledNoteHeight, false, false);
+	
+	Bitmap _scaledArrowBack = getResizedBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.arrow_back), _scaledNote.getWidth() / 2, 4 * _scaledNoteHeight, false, false);
 
 	//Bar position
 	int _barX;
@@ -94,12 +98,12 @@ public class Display extends View
 	int _row = 1000;
 
 	//Note positioning variables
-	int _eventDisplacementX = 150;
+	int _eventDisplacementX = 50;
 	int _horStep = _scaledNote.getWidth();
 	int _vertStep = _scaledNoteHeight / 2;
 	int _upperDistance = _screenCenterY - (int)(_scaledScoreY * 0.8) - _scaledNoteHeight / 2;
 	int _leftDistance = _screenWidth / 30;
-
+	
 	//Touch event coordinates
 	float _eventX;
 	float _eventY;
@@ -146,9 +150,10 @@ public class Display extends View
 
 	//Selected note
 	static int _selectedNote = -1;
+	static Note _selectedNoteObj = null;
 
 	//Flag for deletion. This allows the note to be marked 1st and deleted 2nd.
-	boolean _toDelete = false;
+	static boolean _isEraserActive = false;
 
 	//Selected accidental
 	int _accidentalToDraw = -1;
@@ -168,18 +173,46 @@ public class Display extends View
 							-1,	//E
 							-3,	//D
 							};
+	
+	//Instrument demoing variables.
+	int _previousVertPosition = -1;
+	/**
+	 * If this is true, the note is demoed upon changing the position of the
+	 * note. If this is false, it is demoed when the note is placed.
+	 */
+	static final boolean DEMO_UPON_CHANGE = true;
 
 
 	/**
 	 * Reference to the current song.
 	 */
 	private static Song _song;
+	
+	/**
+	 * Reference to the song player.
+	 */
+	private static Player _player = null;
+	
+	/**
+	 * Reference to the sound player.
+	 */
+	private static SoundPlayer _soundPlayer = null;
+	
+	/**
+	 * Reference to the instrument manager.
+	 */
+	private static InstrumentManager _instrumentManager = null;
 
 
 	//Getter for the _screenPosition
 	public static int getScreen()
 	{
 		return _screenPosition;
+	}
+	
+	public static void setScreen(int screen)
+	{
+		_screenPosition = screen;
 	}
 
 	//Getter for the screen the indicator is currently in
@@ -199,7 +232,19 @@ public class Display extends View
 	{
 		return _signatureList;
 	}
-
+	
+	//Getter for the eraser flag
+	public static boolean getEraser()
+	{
+		return _isEraserActive;
+	}
+	
+	//Setter for the eraser flag
+	public static void setEraser(boolean value)
+	{
+		_isEraserActive = value;
+	}
+	
 	//Constructors
 	public Display(Context context) 
 	{		
@@ -222,6 +267,14 @@ public class Display extends View
 	public static void setSong(Song song)
 	{
 		_song = song;
+	}
+	
+	public static void setSoundStuff(Player player, SoundPlayer soundPlayer,
+			InstrumentManager instrumentManager)
+	{
+		_player = player;
+		_soundPlayer = soundPlayer;
+		_instrumentManager = instrumentManager;
 	}
 
 	/**
@@ -269,6 +322,9 @@ public class Display extends View
     	//Draw signatures
     	drawSignatures();
     	
+    	//Arrow drawing
+    	drawArrows();
+    	
     	//Issue a redraw
     	invalidate();
     }
@@ -305,60 +361,100 @@ public class Display extends View
 		}  
 	    _column = (int)(/*_leftDistance + */( _horStep * horPosition ) );
 	    _row = (int)(_upperDistance + ( _vertStep * vertPosition ) );
-
+	    
+	    //Create a temporary pair
+	    tempPair = new Pair<Integer, Integer, Integer>(_column + ( _horStep * 4 * _screenPosition ), _row, 1);
+	    
 	    //Press down event
 		if(event.getAction() == MotionEvent.ACTION_DOWN)
 		{
-
+			//Right arrow check
+			if(_eventX + _eventDisplacementX > _screenWidth * 0.94f - _scaledArrowNext.getWidth()
+					&& _eventX + _eventDisplacementX < _screenWidth * 0.94f
+					&& _eventY > _upperDistance + (int)(_scaledNoteHeight * 2.5)
+					&& _eventY < _upperDistance + (int)(_scaledNoteHeight * 2.5) + _scaledArrowNext.getHeight())
+			{
+				scoreNext();
+				_column = 1000;
+				_row = 1000;
+				return false;
+			}
+			
+			//Left arrow check
+			if(_eventX + _eventDisplacementX > 0
+					&& _eventX + _eventDisplacementX < _scaledArrowBack.getWidth()
+					&& _eventY > _upperDistance + (int)(_scaledNoteHeight * 2.5)
+					&& _eventY < _upperDistance + (int)(_scaledNoteHeight * 2.5) + _scaledArrowNext.getHeight())
+			{
+				scoreBack();
+				_column = 1000;
+				_row = 1000;
+				return false;
+			}
 		}
 		//Drag event
 		if(event.getAction() == MotionEvent.ACTION_MOVE)
 		{
+			if(_isEraserActive)
+			{
+				if(_notePositions.contains(tempPair))
+				{
+					if(_selectedNote == _notePositions.indexOf(tempPair))
+					{
+						_selectedNote = -1;		    
+				    }
+				    _notePositions.remove(tempPair);
+				    _song.getScore(0).removeNote(horPosition - 1 + (4 * _screenPosition),
+				    							 vertPosition - 1);
+				    playEraserSound();
+				}
+			}
+			else
+			{
+				//Demo note.
+				if (DEMO_UPON_CHANGE && vertPosition != _previousVertPosition
+						&& !_isNoteChoosingActive)
+					demoNote(vertPosition - 1);
+				
+				_previousVertPosition = vertPosition;
+			}
 			//Log.d("ASD", String.valueOf(_eventX) + " " + String.valueOf(_eventY));			
 		}
 		//Release event
 		if(event.getAction() == MotionEvent.ACTION_UP)
 		{	
+			_previousVertPosition = -1;
+			
 			//Note selection initial logic
 			if(!_isNoteChoosingActive)
-			{
-			    //Create a temporary pair
-			    tempPair = new Pair<Integer, Integer, Integer>(_column + ( _horStep * 4 * _screenPosition ), _row, 1);
+			{			   
 			    //Check if there's a note on that location	    
 			    if(_notePositions.contains(tempPair))
 			    {
-			    	if(_selectedNote == _notePositions.indexOf(tempPair))
-			    	{
-			    		_toDelete = true;				    
-			    	}
-			    	else
-			    	{
-			    		_selectedNote = _notePositions.indexOf(tempPair);
-			    	}			    	
-			    }			    		
-
+			    	//Select it
+			    	_selectedNote = _notePositions.indexOf(tempPair);
+			    	
+			    	_selectedNoteObj = _song.getScore(0).getBeat(horPosition - 1 + (4 * _screenPosition))
+			    		.getNoteAtPitch(vertPosition - 1);
+			    }
 			    //Draw note logic, if the note choosing menu is not active			    
 			    //Check if there's already a note there			    
-			    if(_notePositions.contains(tempPair))
-			    {
-			    	if(_toDelete)
-			    	{
-				    	_notePositions.remove(tempPair);
-				    	_song.getScore(0).removeNote(horPosition - 1 + (4 * _screenPosition),
-				    								 vertPosition - 1);
-				    	_selectedNote = -1;
-				    	_toDelete = false;
-			    	}
-			    }
 			    else
 			    {
 			    	Beat theBeat = _song.getScore(0).getBeat(horPosition - 1 + (4 * _screenPosition));
 			    	
-			    	if (theBeat == null || !theBeat.isFull())
+			    	if (!_isEraserActive && (theBeat == null || !theBeat.isFull()))
 			    	{
-			    		_notePositions.add(tempPair);		 
-			    		_song.getScore(0).addNote(horPosition - 1 + (4 * _screenPosition),
-			    							  vertPosition - 1, 0);
+			    		//Add the note graphic if it was added successfully.
+			    		if (_song.getScore(0).addNote(horPosition - 1 + (4 * _screenPosition),
+			    							  vertPosition - 1, 0))
+			    		{
+			    			_notePositions.add(tempPair);
+			    			_selectedNote = -1;
+			    			//Demo note.
+							if (!DEMO_UPON_CHANGE)
+								demoNote(vertPosition - 1);
+			    		}
 			    	}
 			    }			    
 			}		
@@ -372,6 +468,7 @@ public class Display extends View
 					int length = (int)Math.pow(2, (correctX - (int)_menuX) / _scaledNote.getWidth());
 
 					_notePositions.get(_selectedNote).setR(length);
+					_selectedNoteObj.setLength(1 / (float)length);
 					_isNoteChoosingActive = false;
 				}
 				else
@@ -481,7 +578,7 @@ public class Display extends View
     	int positionY = _row - _scaledNote.getHeight() + _scaledNoteHeight;
     	
     	ColorFilter filter = new PorterDuffColorFilter(Color.GREEN, PorterDuff.Mode.SRC_IN);
-    	_paint.setColorFilter(filter);    	
+    	_paint.setColorFilter(filter);
         _canvas.drawBitmap(scaledNote, _column, positionY, _paint);
         
         //TOAST DRAW
@@ -498,6 +595,7 @@ public class Display extends View
 	        _toast.show();
         }
         _position = position;
+        _paint.setColorFilter(null);
 	}
 
 	//Indicator drawing
@@ -557,6 +655,10 @@ public class Display extends View
 	public static void scoreNext()
 	{
 		_screenPosition++;
+		if(_screenPosition > (Global.BEATS_PER_SCORE - 8) / 4)
+		{
+			_screenPosition = (Global.BEATS_PER_SCORE - 8) / 4;
+		}
 	}
 
 	//Responsible for displaying the note length menu
@@ -649,6 +751,7 @@ public class Display extends View
 		_currentSignature = position;
 	}
 
+	//Draws the signature
 	public void drawSignatures()
 	{
 		if(_currentSignature == 0)
@@ -658,29 +761,26 @@ public class Display extends View
 		else if(_currentSignature < 9)
 		{
 			int sharpStep = _scaledSharp.getWidth();
-			ColorFilter filter = new PorterDuffColorFilter(Color.BLACK, PorterDuff.Mode.SRC_IN);
-			_paint.setColorFilter(filter);
 			_paint.setAlpha(100);
 			for(int i = 2; i <= _currentSignature; i++)
 			{
 				_canvas.drawBitmap(_scaledSharp, _horStep + sharpStep * (i - 2), _signaturePositionsY[i - 2], _paint);
 			}
-			_paint.setAlpha(0);
+			_paint.setAlpha(255);
 		}
 		else
 		{
 			int flatStep = _scaledFlat.getWidth();
-			ColorFilter filter = new PorterDuffColorFilter(Color.BLACK, PorterDuff.Mode.SRC_IN);
-			_paint.setColorFilter(filter);
 			_paint.setAlpha(100);
 			for(int i = 10; i <= _currentSignature; i++)
 			{
 				_canvas.drawBitmap(_scaledFlat, _horStep + flatStep * (i - 10), _signaturePositionsY[i - 3], _paint);
 			}
-			_paint.setAlpha(0);
+			_paint.setAlpha(255);
 		}
 	}
 
+	//Initial toast parameters
 	public void initialiseToast()
 	{
 		Context context = getContext();
@@ -689,5 +789,27 @@ public class Display extends View
         _duration = duration;	
         _toast = Toast.makeText(context, text, duration);
         _toast.setGravity(Gravity.BOTTOM|Gravity.CENTER_HORIZONTAL, 0, 0);
+	}
+	
+	//Draws the arrows for changing the screen
+	public void drawArrows()
+	{
+		_paint.setAlpha(100);
+    	_canvas.drawBitmap(_scaledArrowNext, _screenWidth * 0.94f - _scaledArrowNext.getWidth(), _upperDistance + (int)(_scaledNoteHeight * 2.5), _paint);
+    	_canvas.drawBitmap(_scaledArrowBack, 0, _upperDistance + (int)(_scaledNoteHeight * 2.5), _paint);
+    	_paint.setAlpha(255);
+	}
+	
+	private void demoNote(int verticalIndex)
+	{
+		_soundPlayer.demo(_player.getInstrument(),
+				Global.GRID_TO_PITCH[verticalIndex]);
+		
+		//Need key sig at some point.
+	}
+	
+	private void playEraserSound()
+	{
+		_soundPlayer.demo(_instrumentManager.getEraserID());
 	}
 }

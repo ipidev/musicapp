@@ -47,6 +47,8 @@ public class SoundRecorder
  	 */
  	private SoundRecorderCallback _callback = null;
  	
+ 	private int _numberOfRecordings = 0;
+ 	
 	
 	public SoundRecorder()
 	{
@@ -78,6 +80,15 @@ public class SoundRecorder
 	public String getFilePath()
 	{
 		return _filePath;
+	}
+	
+	/**
+	 * Accessor for the number of recordings.
+	 * @return The number of recordings completed.
+	 */
+	public int getNumberOfRecordings()
+	{
+		return _numberOfRecordings;
 	}
 	
 	/**
@@ -147,5 +158,7 @@ public class SoundRecorder
  		if (_callback != null)
  			_callback.callback();
  		_callback = null;
+ 		
+ 		_numberOfRecordings++;
 	}
 }
