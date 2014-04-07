@@ -22,13 +22,13 @@
           android:orderInCategory="10"
           android:icon="@drawable/ic_menu_changelength"
           android:title="@string/action_changeLength"
-          android:showAsAction="ifRoom" />
+          android:showAsAction="never" />
     
-    <!--<item android:id="@+id/action_changeSignature"
+    <item android:id="@+id/action_changeSignature"
           android:orderInCategory="11"
           android:icon="@drawable/ic_menu_changesig"
           android:title="@string/action_changeSignature"
-          android:showAsAction="ifRoom" />  -->
+          android:showAsAction="never" />
 
     <!-- <item
         android:id="@+id/action_settings"

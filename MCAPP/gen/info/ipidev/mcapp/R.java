@@ -76,9 +76,10 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int sharp=0x7f020025;
     }
     public static final class id {
-        public static final int action_about=0x7f0b0011;
+        public static final int action_about=0x7f0b0012;
         public static final int action_changeLength=0x7f0b000f;
-        public static final int action_help=0x7f0b0010;
+        public static final int action_changeSignature=0x7f0b0010;
+        public static final int action_help=0x7f0b0011;
         public static final int action_new=0x7f0b000e;
         public static final int bpmBar=0x7f0b000a;
         public static final int bpmLabel=0x7f0b000b;

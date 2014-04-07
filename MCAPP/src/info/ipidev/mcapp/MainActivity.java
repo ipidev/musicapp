@@ -424,10 +424,10 @@ public class MainActivity extends Activity
 	        	return true;
 	        case R.id.action_export:
 	        	onExportAction();
-	        	return true;
+	        	return true;*/
 	        case R.id.action_changeSignature:
 	        	onChangeSignature();
-	        	return true;*/
+	        	return true;
 	        case R.id.action_changeLength:
 	        	onChangeNoteLengthButton();
 	        	return true;

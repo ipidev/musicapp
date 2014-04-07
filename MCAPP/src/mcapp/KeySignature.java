@@ -126,9 +126,9 @@ public class KeySignature
 		{
 			for (int i = _accidentals.length - 1; i >= 0; i--)
 			{
-				switch (i % 7)
+				switch (Global.GRID_TO_PITCH[i] % 12)
 				{
-					case 4:
+					case ROOT_F:
 						_accidentals[i] = 1;
 						break;
 					default:
@@ -141,10 +141,10 @@ public class KeySignature
 		{
 			for (int i = _accidentals.length - 1; i >= 0; i--)
 			{
-				switch (i % 7)
+				switch (Global.GRID_TO_PITCH[i] % 12)
 				{
-					case 4:
-					case 1:
+					case ROOT_F:
+					case ROOT_C:
 						_accidentals[i] = 1;
 						break;
 					default:
@@ -157,11 +157,11 @@ public class KeySignature
 		{
 			for (int i = _accidentals.length - 1; i >= 0; i--)
 			{
-				switch (i % 7)
+				switch (Global.GRID_TO_PITCH[i] % 12)
 				{
-					case 4:
-					case 1:
-					case 5:
+					case ROOT_F:
+					case ROOT_C:
+					case ROOT_G:
 						_accidentals[i] = 1;
 						break;
 					default:
@@ -174,12 +174,12 @@ public class KeySignature
 		{
 			for (int i = _accidentals.length - 1; i >= 0; i--)
 			{
-				switch (i % 7)
+				switch (Global.GRID_TO_PITCH[i] % 12)
 				{
-					case 4:
-					case 1:
-					case 5:
-					case 2:
+					case ROOT_F:
+					case ROOT_C:
+					case ROOT_G:
+					case ROOT_D:
 						_accidentals[i] = 1;
 						break;
 					default:
@@ -192,13 +192,13 @@ public class KeySignature
 		{
 			for (int i = _accidentals.length - 1; i >= 0; i--)
 			{
-				switch (i % 7)
+				switch (Global.GRID_TO_PITCH[i] % 12)
 				{
-					case 4:
-					case 1:
-					case 5:
-					case 2:
-					case 6:
+					case ROOT_F:
+					case ROOT_C:
+					case ROOT_G:
+					case ROOT_D:
+					case ROOT_A:
 						_accidentals[i] = 1;
 						break;
 					default:
@@ -207,18 +207,18 @@ public class KeySignature
 			}
 		}
 		//F# / D#m
-		else if (_root == ROOT_B && _key == KEY_MAJOR && _hasSharps == true)
+		else if (_root == ROOT_F_SHARP && _key == KEY_MAJOR && _hasSharps == true)
 		{
 			for (int i = _accidentals.length - 1; i >= 0; i--)
 			{
-				switch (i % 7)
+				switch (Global.GRID_TO_PITCH[i] % 12)
 				{
-					case 4:
-					case 1:
-					case 5:
-					case 2:
-					case 6:
-					case 3:
+					case ROOT_F:
+					case ROOT_C:
+					case ROOT_G:
+					case ROOT_D:
+					case ROOT_A:
+					case ROOT_E:
 						_accidentals[i] = 1;
 						break;
 					default:
@@ -227,7 +227,7 @@ public class KeySignature
 			}
 		}
 		//C# / A#m
-		else if (_root == ROOT_B && _key == KEY_MAJOR && _hasSharps == true)
+		else if (_root == ROOT_C_SHARP && _key == KEY_MAJOR && _hasSharps == true)
 		{
 			for (int i = _accidentals.length - 1; i >= 0; i--)
 			{
@@ -239,9 +239,9 @@ public class KeySignature
 		{
 			for (int i = _accidentals.length - 1; i >= 0; i--)
 			{
-				switch (i % 7)
+				switch (Global.GRID_TO_PITCH[i] % 12)
 				{
-					case 0:
+					case ROOT_B:
 						_accidentals[i] = -1;
 						break;
 					default:
@@ -254,10 +254,10 @@ public class KeySignature
 		{
 			for (int i = _accidentals.length - 1; i >= 0; i--)
 			{
-				switch (i % 7)
+				switch (Global.GRID_TO_PITCH[i] % 12)
 				{
-					case 0:
-					case 3:
+					case ROOT_B:
+					case ROOT_E:
 						_accidentals[i] = -1;
 						break;
 					default:
@@ -270,11 +270,11 @@ public class KeySignature
 		{
 			for (int i = _accidentals.length - 1; i >= 0; i--)
 			{
-				switch (i % 7)
+				switch (Global.GRID_TO_PITCH[i] % 12)
 				{
-					case 0:
-					case 3:
-					case 6:
+					case ROOT_B:
+					case ROOT_E:
+					case ROOT_A:
 						_accidentals[i] = -1;
 						break;
 					default:
@@ -287,12 +287,12 @@ public class KeySignature
 		{
 			for (int i = _accidentals.length - 1; i >= 0; i--)
 			{
-				switch (i % 7)
+				switch (Global.GRID_TO_PITCH[i] % 12)
 				{
-					case 0:
-					case 3:
-					case 6:
-					case 2:
+					case ROOT_B:
+					case ROOT_E:
+					case ROOT_A:
+					case ROOT_D:
 						_accidentals[i] = -1;
 						break;
 					default:
@@ -305,13 +305,13 @@ public class KeySignature
 		{
 			for (int i = _accidentals.length - 1; i >= 0; i--)
 			{
-				switch (i % 7)
+				switch (Global.GRID_TO_PITCH[i] % 12)
 				{
-					case 0:
-					case 3:
-					case 6:
-					case 2:
-					case 5:
+					case ROOT_B:
+					case ROOT_E:
+					case ROOT_A:
+					case ROOT_D:
+					case ROOT_G:
 						_accidentals[i] = -1;
 						break;
 					default:
@@ -324,34 +324,14 @@ public class KeySignature
 		{
 			for (int i = _accidentals.length - 1; i >= 0; i--)
 			{
-				switch (i % 7)
+				switch (Global.GRID_TO_PITCH[i] % 12)
 				{
-					case 0:
-					case 3:
-					case 6:
-					case 2:
-					case 5:
-					case 1:
-						_accidentals[i] = -1;
-						break;
-					default:
-						_accidentals[i] = 0;
-				}
-			}
-		}
-		//Gb / Ebm
-		else if (_root == ROOT_F_SHARP && _key == KEY_MAJOR && _hasSharps == false)
-		{
-			for (int i = _accidentals.length - 1; i >= 0; i--)
-			{
-				switch (i % 7)
-				{
-					case 0:
-					case 3:
-					case 6:
-					case 2:
-					case 5:
-					case 1:
+					case ROOT_B:
+					case ROOT_E:
+					case ROOT_A:
+					case ROOT_D:
+					case ROOT_G:
+					case ROOT_C:
 						_accidentals[i] = -1;
 						break;
 					default:
@@ -361,7 +341,7 @@ public class KeySignature
 		}
 		else
 		{
-			throw new IllegalArgumentException("AAAAAAAAAAAAA");
+			throw new IllegalArgumentException("root " + _root + ", key " + _key + ", sharps " + _hasSharps);
 		}
 	}
 	
